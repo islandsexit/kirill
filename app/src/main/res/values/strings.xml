@@ -1,14 +1,14 @@
 <resources>
-    <string name="app_name">CriminalIntent</string>
-    <string name="crime_title_hint">Enter a title for the crime.</string>
-    <string name="crime_title_label">Title</string>
-    <string name="crime_details_label">Details</string>
-    <string name="crime_solved_label">Solved</string>
-    <string name="new_crime">New Crime</string>
-    <string name="crime_suspect_text">Choose Suspect</string>
-    <string name="crime_report_text">Send Crime Report</string>
+    <string name="app_name">ParkingTool</string>
+    <string name="crime_title_hint">Номер</string>
+    <string name="crime_title_label">Номер</string>
+    <string name="crime_details_label">Дтали</string>
+    <string name="crime_solved_label">Сотрудник</string>
+    <string name="new_crime">Новый номер</string>
+    <string name="crime_suspect_text">Выбери получателя</string>
+    <string name="crime_report_text">Отправить репорт</string>
     <string name="crime_report">%1$s!
-        The crime was discovered on %2$s. %3$s, and %4$s
+        Нарушение в  %2$s. %3$s, и %4$s
     </string>
     <string name="crime_report_solved">The case is solved</string>
     <string name="crime_report_unsolved">The case is not solved</string>
