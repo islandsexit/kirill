@@ -122,7 +122,7 @@ class CrimeListFragment : Fragment() {
             titleTextView.text = this.crime.title
             dateTextView.text = this.crime.date.toString()
             var path_to_image = "/storage/emulated/0/${crime.img_path}"
-            if(File(path_to_image).exists()){
+            if(File(path_to_image).exists() && crime.img_path != ""){
                 mybitmap = BitmapFactory.decodeFile(path_to_image)
                 solvedImageView.setImageBitmap(Bitmap.createScaledBitmap(mybitmap, 120, 120, false))
                 solvedImageView.setVisibility(View.VISIBLE)

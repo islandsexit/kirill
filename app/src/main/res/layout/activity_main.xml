@@ -10,7 +10,8 @@
         android:layout_height="100px"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="add"/>
+        android:text="add"
+        android:onClick="add_crime"/>
 
     <FrameLayout
         android:id="@+id/fragment_container"

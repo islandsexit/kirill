@@ -18,11 +18,11 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        test_button = findViewById(R.id.test_add) as Button
-        
-        test_button.setOnClickListener{
-            crimeRepository.updateCrime(Crime())
-        }
+//        test_button = findViewById(R.id.test_add)
+//
+//        test_button.setOnClickListener{
+//            crimeRepository.updateCrime(Crime())
+//        }
 
         setContentView(R.layout.activity_main)
         val MY_READ_EXTERNAL_REQUEST : Int = 1
@@ -51,5 +51,9 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
             .replace(R.id.fragment_container, fragment)
             .addToBackStack(null)
             .commit()
+    }
+
+    fun add_crime(view: View){
+        crimeRepository.addCrime(Crime())
     }
 }
