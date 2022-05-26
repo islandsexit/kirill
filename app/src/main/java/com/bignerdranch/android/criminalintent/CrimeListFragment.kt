@@ -3,7 +3,6 @@ package com.bignerdranch.android.criminalintent
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -14,14 +13,17 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import org.opencv.android.CameraBridgeViewBase
+import org.opencv.core.Mat
 import java.io.File
 import java.util.*
 
 private const val TAG = "CrimeListFragment"
 private const val SAVED_SUBTITLE_VISIBLE = "subtitle"
 
-class CrimeListFragment : Fragment() {
-
+class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2 {
+    private lateinit var mRgba:Mat
+    private lateinit var mGray:Mat
     private lateinit var crimeRecyclerView: RecyclerView
     private lateinit var img_file: File
     private lateinit var mybitmap: Bitmap
@@ -35,10 +37,11 @@ class CrimeListFragment : Fragment() {
         fun onCrimeSelected(crimeId: UUID)
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         callbacks = context as? Callbacks
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -161,5 +164,20 @@ class CrimeListFragment : Fragment() {
         fun newInstance(): CrimeListFragment {
             return CrimeListFragment()
         }
+    }
+
+    override fun onCameraViewStarted(width: Int, height: Int) {
+        mGray = Mat()
+        mRgba = Mat()    }
+
+    override fun onCameraViewStopped() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onCameraFrame(inputFrame: CameraBridgeViewBase.CvCameraViewFrame): Mat {
+
+
+        mRgba = inputFrame.rgba()
+        return mRgba
     }
 }
