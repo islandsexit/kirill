@@ -12,16 +12,17 @@ import android.util.Base64
 import android.util.Log
 import org.opencv.android.JavaCameraView
 import org.opencv.core.Rect
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.util.*
 
 class myCameraView(context: Context?, attrs: AttributeSet?) :
     JavaCameraView(context, attrs), PictureCallback {
     private var mPictureFileName: String? = null
     var img64: String? = null
+    private lateinit var face_array: Array<Rect>
+
+
+
 //    var POST: Post_class = Post_class()
     val effectList: List<String>
         get() = mCamera.parameters.supportedColorEffects
@@ -69,13 +70,25 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
 
         // Write the image in a file (in jpeg format)
         try {
-            val mFile2 = File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM),
-                mPictureFileName
-            )
-            val fos = FileOutputStream(mFile2)
-            fos.write(data)
-            fos.close()
+
+            var path_to_image = context.filesDir
+
+            val mFile2 = File(path_to_image, "$mPictureFileName.jpg")
+            if (mFile2.exists()) {
+                mFile2.delete();
+            }
+            try {
+                val fos: OutputStream = FileOutputStream(mFile2.path)
+                fos.write(data);
+                fos.close();
+            }
+            catch (e: IOException) {
+                Log.e("PictureDemo", "Exception in photoCallback", e)
+            }
+
+//            val fos = FileOutputStream(mFile2)
+//            fos.write(data)
+//            fos.close()
             var bm = BitmapFactory.decodeFile(mFile2.path)
             bm = getResizedBitmap(bm, 720, 480)
             val mat = Matrix()
@@ -101,7 +114,7 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
                 face_array[0].height
             )
             val mFile3 = File(
-                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
+                path_to_image,
                 UUID.randomUUID().toString() + "_" + ".jpg"
             )
             var fos2: FileOutputStream? = null
@@ -111,8 +124,9 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
             val bOut = ByteArrayOutputStream()
             bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut)
             img64 = Base64.encodeToString(bOut.toByteArray(), Base64.DEFAULT)
+            CrimeRepository.get().addCrime(Crime(title = "test", img_path = mFile3.path))
         } catch (e: IOException) {
-            Log.e("PictureDemo", "Exception in photoCallback", e)
+            Log.e("APP_LOG", "Exception in photoCallback", e)
         }
     }
 

@@ -51,7 +51,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
     private lateinit var mCountDownTimer: CountDownTimer
     private lateinit var mCountDownTimer2: CountDownTimer
-    private val can_take_photo = false
+    private var can_take_photo = false
 
 
     private lateinit var crimeRecyclerView: RecyclerView
@@ -100,6 +100,31 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         crimeRecyclerView =
                 view.findViewById(R.id.crime_recycler_view) as RecyclerView
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
+
+
+        //        PopUpClass popUp = new PopUpClass();
+//        popUp.showPopupWindow(this);
+        can_take_photo = true
+        mCountDownTimer =
+            object : CountDownTimer(TIMER_DURATION, TIMER_INTERVAL) {
+                override fun onTick(millisUntilFinished: Long) {
+                    can_take_photo = false
+                }
+
+                override fun onFinish() {
+                    count = 0
+                    can_take_photo = true
+
+                }
+            }.start()
+        mCountDownTimer2 =
+            object : CountDownTimer(TIMER_DURATION, TIMER_INTERVAL) {
+                override fun onTick(millisUntilFinished: Long) {}
+                override fun onFinish() {
+                    count = 0
+
+                }
+            }.start()
 
 
         cameraBridgeViewBase = view.findViewById(R.id.myCameraView) as myCameraView
@@ -222,9 +247,9 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
             this.crime = crime
             titleTextView.text = this.crime.title
             dateTextView.text = this.crime.date.toString()
-            var path_to_image = "/storage/emulated/0/${crime.img_path}"
-            if(File(path_to_image).exists() && crime.img_path != ""){
-                mybitmap = BitmapFactory.decodeFile(path_to_image)
+//            var path_to_image = "/storage/emulated/0/${crime.img_path}"
+            if(File(crime.img_path).exists() && crime.img_path != ""){
+                mybitmap = BitmapFactory.decodeFile(crime.img_path)
                 solvedImageView.setImageBitmap(Bitmap.createScaledBitmap(mybitmap, 120, 120, false))
                 solvedImageView.setVisibility(View.VISIBLE)
             }else{
@@ -331,7 +356,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
                         mCountDownTimer2.start()
                         count++
                     }
-                    99 -> {
+                    55 -> {
                         cameraBridgeViewBase.setFace_array(facesArray)
                         val uuid = UUID.randomUUID().toString() + ".png"
                         cameraBridgeViewBase.takePicture(uuid)

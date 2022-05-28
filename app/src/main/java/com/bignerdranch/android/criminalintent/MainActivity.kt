@@ -1,32 +1,23 @@
 package com.bignerdranch.android.criminalintent
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.CountDownTimer
-import android.util.Log
+import android.os.Environment
+import android.provider.Settings
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import org.opencv.android.BaseLoaderCallback
-import org.opencv.android.CameraBridgeViewBase
-import org.opencv.android.LoaderCallbackInterface
-import org.opencv.android.OpenCVLoader
-import org.opencv.core.Mat
-import org.opencv.core.Scalar
-import org.opencv.objdetect.CascadeClassifier
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
 import java.util.*
+
 
 class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
 
     lateinit var test_button: Button
-    private val crimeRepository = CrimeRepository.get()
+    public val crimeRepository = CrimeRepository.get()
 
 
 
@@ -37,7 +28,13 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
         setContentView(R.layout.activity_main)
 
 
-
+        if (Build.VERSION.SDK_INT >= 30) {
+            if (!Environment.isExternalStorageManager()) {
+                val getpermission = Intent()
+                getpermission.action = Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION
+                startActivity(getpermission)
+            }
+        }
 
 
 
