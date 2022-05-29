@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
+import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
@@ -182,6 +183,29 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
                 isEnabled = false
             }
         }
+
+//        photoButton.apply {
+//            val packageManager: PackageManager = requireActivity().packageManager
+//
+//            val captureImage = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+//
+//            val resoledActivity: ResolveInfo? = packageManager.resolveActivity(captureImage, PackageManager.MATCH_DEFAULT_ONLY)
+//
+//            if(resoledActivity == null){
+//                isEnabled = false
+//            }
+//            setOnClickListener {
+//                captureImage.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
+//
+//                val cameraActivities: List<ResolveInfo> = packageManager.queryIntentActivities(captureImage, PackageManager.MATCH_DEFAULT_ONLY)
+//
+//                for(cameraActivity in cameraActivities){
+//                    requireActivity().grantUriPermission(cameraActivity.activityInfo.packageName, photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+//                }
+//                startActivityForResult(captureImage, 2)
+//
+//            }
+//        }
     }
 
     override fun onStop() {

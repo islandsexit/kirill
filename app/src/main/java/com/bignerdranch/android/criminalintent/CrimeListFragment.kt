@@ -3,6 +3,7 @@ package com.bignerdranch.android.criminalintent
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.util.Log
@@ -245,6 +246,9 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
         fun bind(crime: Crime) {
             this.crime = crime
+            if(crime.isSolved){
+                titleTextView.setTextColor(Color.parseColor("red"))
+            }
             titleTextView.text = this.crime.title
             dateTextView.text = this.crime.date.toString()
 //            var path_to_image = "/storage/emulated/0/${crime.img_path}"
