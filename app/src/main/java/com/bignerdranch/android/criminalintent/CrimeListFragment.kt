@@ -1,11 +1,15 @@
 package com.bignerdranch.android.criminalintent
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.Matrix
+import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.util.Base64
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
@@ -14,8 +18,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bignerdranch.android.criminalintent.api.ApiClient
+import kotlinx.coroutines.launch
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.CameraBridgeViewBase
 import org.opencv.android.LoaderCallbackInterface
@@ -23,6 +30,7 @@ import org.opencv.android.OpenCVLoader
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import org.opencv.objdetect.CascadeClassifier
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -38,6 +46,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
     private lateinit var mRgba:Mat
     private lateinit var mGray:Mat
     private lateinit var cameraBridgeViewBase: myCameraView
+    var img64_full: String? = null
 
     var baseLoaderCallback: BaseLoaderCallback? = null
     private val FACE_RECT_COLOR = Scalar(0.0, 255.0, 0.0, 255.0)
@@ -58,6 +67,8 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
     private lateinit var crimeRecyclerView: RecyclerView
     private lateinit var img_file: File
     private lateinit var mybitmap: Bitmap
+
+
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
     val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProviders.of(this).get(CrimeListViewModel::class.java)
@@ -101,6 +112,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         crimeRecyclerView =
                 view.findViewById(R.id.crime_recycler_view) as RecyclerView
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
+
 
 
         //        PopUpClass popUp = new PopUpClass();
@@ -239,6 +251,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         private val titleTextView: TextView = itemView.findViewById(R.id.crime_title)
         private val dateTextView: TextView = itemView.findViewById(R.id.crime_date)
         private val solvedImageView: ImageView = itemView.findViewById(R.id.crime_solved)
+        private val sendIcon:ImageView = itemView.findViewById(R.id.connection)
 
         init {
             itemView.setOnClickListener(this)
@@ -259,6 +272,12 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
             }else{
                 solvedImageView.setVisibility(View.INVISIBLE)
             }
+            if(!crime.send){
+                sendIcon.setVisibility(View.VISIBLE)
+            }
+            else{
+                sendIcon.setVisibility(View.GONE)
+            }
 
 
 
@@ -267,7 +286,14 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         }
 
         override fun onClick(v: View) {
-            callbacks?.onCrimeSelected(crime.id)
+            if (crime.send) {
+                callbacks?.onCrimeSelected(crime.id)
+            }
+            else{
+               lifecycleScope.launch {
+                   ResendCrime(crime)
+               }
+            }
         }
     }
 
@@ -457,5 +483,38 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
     override fun onDetach() {
         super.onDetach()
         callbacks = null
+    }
+
+    fun getResizedBitmap(bm: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
+        val width = bm.width
+        val height = bm.height
+        val scaleWidth = newWidth.toFloat() / width
+        val scaleHeight = newHeight.toFloat() / height
+        val matrix = Matrix()
+        matrix.postScale(scaleWidth, scaleHeight)
+        return Bitmap.createBitmap(
+            bm, 0, 0, width, height, matrix, false
+        )
+    }
+
+    suspend fun ResendCrime(crime: Crime){
+        //todo удалить строку, на которую нажал и коорая не отправилась
+        val bOut2 = ByteArrayOutputStream()
+        var bm = BitmapFactory.decodeFile(crime.img_path_full)
+        bm = getResizedBitmap(bm, 720, 480)
+
+
+        val mat = Matrix()
+        mat.postRotate(90f)
+        bm = Bitmap.createBitmap(
+            bm, 0, 0,
+            bm.width, bm.height,
+            mat, true
+        )
+
+        bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
+        img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
+        ApiClient.POST_img64("img64.toString()", img64_full.toString(), "http://192.168.48.174:8080/",crime)
+
     }
 }

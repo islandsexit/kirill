@@ -8,6 +8,6 @@ import retrofit2.http.POST
 
 interface PostInterface {
     @FormUrlEncoded
-    @POST("")
-    fun  postPlate(@Field("img64") img64: String?): Call<PostPhoto?>?
+    @POST("/onplate")
+    fun  postPlate( @Field("image") img64_full: String): Call<PostPhoto>
 }

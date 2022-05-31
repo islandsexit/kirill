@@ -17,4 +17,6 @@
     <string name="crime_report_subject">CriminalIntent Crime Report</string>
     <string name="send_report">Send crime report via</string>
     <string name="photo_path">Photo_path</string>
+    <string name="photo_path_full">Photo_path_full</string>
+    <string name="resend">Повторить отправку</string>
 </resources>

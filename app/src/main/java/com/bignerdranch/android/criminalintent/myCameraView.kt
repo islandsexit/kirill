@@ -10,6 +10,7 @@ import android.os.Environment
 import android.util.AttributeSet
 import android.util.Base64
 import android.util.Log
+import com.bignerdranch.android.criminalintent.api.ApiClient
 import org.opencv.android.JavaCameraView
 import org.opencv.core.Rect
 import java.io.*
@@ -19,6 +20,7 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
     JavaCameraView(context, attrs), PictureCallback {
     private var mPictureFileName: String? = null
     var img64: String? = null
+    var img64_full: String? = null
     private lateinit var face_array: Array<Rect>
 
 
@@ -86,11 +88,18 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
                 Log.e("PictureDemo", "Exception in photoCallback", e)
             }
 
-//            val fos = FileOutputStream(mFile2)
-//            fos.write(data)
-//            fos.close()
+            val fos = FileOutputStream(mFile2)
+            fos.write(data)
+            fos.close()
+            val bOut2 = ByteArrayOutputStream()
             var bm = BitmapFactory.decodeFile(mFile2.path)
             bm = getResizedBitmap(bm, 720, 480)
+
+
+//            Log.i("APP_LOG", img64_full.toString())
+
+
+
             val mat = Matrix()
             mat.postRotate(90f)
             bm = Bitmap.createBitmap(
@@ -98,6 +107,9 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
                 bm.width, bm.height,
                 mat, true
             )
+
+            bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
+            img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
             Log.i(
                 "APP_LOG", """width:${bm.width}
                          height:${bm.height} 
@@ -120,11 +132,14 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
             var fos2: FileOutputStream? = null
             fos2 = FileOutputStream(mFile3)
             Log.i("APP_LOG", mFile3.absolutePath)
+
+
             bm.compress(Bitmap.CompressFormat.JPEG, 100, fos2)
             val bOut = ByteArrayOutputStream()
             bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut)
             img64 = Base64.encodeToString(bOut.toByteArray(), Base64.DEFAULT)
-            CrimeRepository.get().addCrime(Crime(title = "test", img_path = mFile3.path))
+            ApiClient.POST_img64(img64.toString(), img64_full.toString(), "http://192.168.48.174:8080/",img_path = mFile3.path, img_plate_path = mFile2.path )
+//            CrimeRepository.get().addCrime(Crime(title = "test", img_path = mFile3.path, img_path_full = mFile2.path))
         } catch (e: IOException) {
             Log.e("APP_LOG", "Exception in photoCallback", e)
         }
@@ -148,6 +163,10 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
         width: Int
     ): Array<Rect?> {
         return arrayOfNulls(3)
+    }
+
+    suspend fun createPhoto(){
+
     }
 
     companion object {

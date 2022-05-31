@@ -2,8 +2,9 @@ package com.bignerdranch.android.criminalintent
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 
-class PicturesUtils {
+public class PicturesUtils {
 
 
     fun getScaledBitmap(path: String, destWidth:Int, destHeight:Int): Bitmap {
@@ -36,4 +37,16 @@ class PicturesUtils {
         return BitmapFactory.decodeFile(path, options)
     }
 
+
+    fun getResizedBitmap(bm: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
+        val width = bm.width
+        val height = bm.height
+        val scaleWidth = newWidth.toFloat() / width
+        val scaleHeight = newHeight.toFloat() / height
+        val matrix = Matrix()
+        matrix.postScale(scaleWidth, scaleHeight)
+        return Bitmap.createBitmap(
+            bm, 0, 0, width, height, matrix, false
+        )
+    }
 }

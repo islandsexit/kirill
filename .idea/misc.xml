@@ -3,10 +3,14 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Projects/Park/app/src/main/res/drawable/ic_launcher_background.xml" value="0.197" />
+        <entry key="..\:/Projects/Park/app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.197" />
         <entry key="..\:/Projects/Park/app/src/main/res/layout/activity_main.xml" value="0.36666666666666664" />
         <entry key="..\:/Projects/Park/app/src/main/res/layout/fragment_crime.xml" value="0.18802083333333333" />
         <entry key="..\:/Projects/Park/app/src/main/res/layout/fragment_crime_list.xml" value="0.18802083333333333" />
         <entry key="..\:/Projects/Park/app/src/main/res/layout/list_item_crime.xml" value="0.36666666666666664" />
+        <entry key="..\:/Projects/Park/app/src/main/res/menu/fragment_crime_list.xml" value="0.24427083333333333" />
+        <entry key="..\:/Projects/Park/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.197" />
       </map>
     </option>
   </component>

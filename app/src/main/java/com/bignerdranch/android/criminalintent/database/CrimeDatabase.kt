@@ -29,3 +29,19 @@ val migration_2_3 = object : Migration(2, 3) {
         )
     }
 }
+
+val migration_3_4 = object : Migration(3, 4) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "ALTER TABLE Crime ADD COLUMN img_path_full TEXT NOT NULL DEFAULT ''"
+        )
+    }
+}
+
+val migration_4_5 = object : Migration(3, 4) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "ALTER TABLE Crime ADD COLUMN send BOOL NOT NULL DEFAULT 0 "
+        )
+    }
+}

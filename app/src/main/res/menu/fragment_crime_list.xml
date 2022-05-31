@@ -6,4 +6,9 @@
         android:icon="@drawable/ic_menu_add"
         android:title="@string/new_crime"
         app:showAsAction="ifRoom|withText"/>
+    <item android:id="@+id/resend_crimes"
+        android:icon="@drawable/ic_upload"
+        android:title="@string/resend"
+        app:showAsAction="ifRoom|withText"
+        />
 </menu>

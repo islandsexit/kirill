@@ -3,9 +3,7 @@ package com.bignerdranch.android.criminalintent
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
-import com.bignerdranch.android.criminalintent.database.CrimeDatabase
-import com.bignerdranch.android.criminalintent.database.migration_1_2
-import com.bignerdranch.android.criminalintent.database.migration_2_3
+import com.bignerdranch.android.criminalintent.database.*
 import java.util.*
 import java.util.concurrent.Executors
 
@@ -18,6 +16,8 @@ class CrimeRepository private constructor(context: Context) {
         CrimeDatabase::class.java,
         DATABASE_NAME
     ).addMigrations(migration_1_2).addMigrations((migration_2_3))
+        .addMigrations(migration_3_4)
+        .addMigrations(migration_4_5)
         .build()
     private val crimeDao = database.crimeDao()
     private val executor = Executors.newSingleThreadExecutor()
@@ -25,6 +25,8 @@ class CrimeRepository private constructor(context: Context) {
     fun getCrimes(): LiveData<List<Crime>> = crimeDao.getCrimes()
 
     fun getCrime(id: UUID): LiveData<Crime?> = crimeDao.getCrime(id)
+
+    fun deleteCrime(crime: Crime) = crimeDao.deleteCrime(crime)
 
     fun updateCrime(crime: Crime) {
         executor.execute {

@@ -60,6 +60,18 @@
         android:hint="@string/photo_path"/>
 
     <TextView
+        style="?android:listSeparatorTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/photo_path"/>
+
+    <EditText
+        android:id="@+id/photo_path_full"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/photo_path_full"/>
+
+    <TextView
             style="?android:listSeparatorTextViewStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
