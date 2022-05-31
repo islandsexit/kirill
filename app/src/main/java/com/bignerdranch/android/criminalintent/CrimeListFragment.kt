@@ -12,6 +12,7 @@ import android.os.CountDownTimer
 import android.util.Base64
 import android.util.Log
 import android.view.*
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
@@ -68,6 +69,8 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
     private lateinit var img_file: File
     private lateinit var mybitmap: Bitmap
 
+    private lateinit var photoButton:ImageButton
+
 
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
     val crimeListViewModel: CrimeListViewModel by lazy {
@@ -112,8 +115,11 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         crimeRecyclerView =
                 view.findViewById(R.id.crime_recycler_view) as RecyclerView
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
+        photoButton = view.findViewById(R.id.camera_button) as ImageButton
 
-
+        photoButton.setOnClickListener {
+            cameraBridgeViewBase.takePicture(UUID.randomUUID().toString())
+        }
 
         //        PopUpClass popUp = new PopUpClass();
 //        popUp.showPopupWindow(this);
@@ -252,9 +258,13 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         private val dateTextView: TextView = itemView.findViewById(R.id.crime_date)
         private val solvedImageView: ImageView = itemView.findViewById(R.id.crime_solved)
         private val sendIcon:ImageView = itemView.findViewById(R.id.connection)
+        private val foundIcon:ImageView = itemView.findViewById(R.id.not_found)
+
+
 
         init {
             itemView.setOnClickListener(this)
+
         }
 
         fun bind(crime: Crime) {
@@ -274,10 +284,19 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
             }
             if(!crime.send){
                 sendIcon.setVisibility(View.VISIBLE)
+                foundIcon.setVisibility(View.GONE)
+
             }
             else{
                 sendIcon.setVisibility(View.GONE)
+                if(!crime.found){
+                    foundIcon.setVisibility(View.VISIBLE)
+                }
+                else{
+                    foundIcon.setVisibility(View.GONE)
+                }
             }
+
 
 
 
@@ -373,54 +392,54 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
             Log.i("MainActivity.this", "w:" + facesArray[0].width)
             Log.i("MainActivity.this", "h:" + facesArray[0].height)
             Log.e(TAG, "plate detected!")
-            count++
-            if (can_take_photo) {
-                when (count) {
-                    50 -> {
-                        Log.i(
-                            TAG,
-                            "toast wait---------------------------------------------------------------------------------------------------"
-                        )
-
-                        mCountDownTimer2.cancel()
-                        mCountDownTimer2.start()
-                        count++
-                    }
-                    55 -> {
-                        cameraBridgeViewBase.setFace_array(facesArray)
-                        val uuid = UUID.randomUUID().toString() + ".png"
-                        cameraBridgeViewBase.takePicture(uuid)
-                        mCountDownTimer.cancel()
-                        mCountDownTimer.start()
-                        count = 0
-                    }
-                    else -> {}
-                }
-                //                if (count == 10) {
+//            count++
+//            if (can_take_photo) {
+//                when (count) {
+//                    50 -> {
+//                        Log.i(
+//                            TAG,
+//                            "toast wait---------------------------------------------------------------------------------------------------"
+//                        )
 //
-//                    cameraBridgeViewBase.setFace_array(facesArray);
-//                    String uuid = UUID.randomUUID().toString() + ".png";
-//                    cameraBridgeViewBase.takePicture(uuid);
-//                    mCountDownTimer.start();
-//                    count=0;
-//
-//
-//
+//                        mCountDownTimer2.cancel()
+//                        mCountDownTimer2.start()
+//                        count++
+//                    }
+//                    55 -> {
+//                        cameraBridgeViewBase.setFace_array(facesArray)
+//                        val uuid = UUID.randomUUID().toString() + ".png"
+//                        cameraBridgeViewBase.takePicture(uuid)
+//                        mCountDownTimer.cancel()
+//                        mCountDownTimer.start()
+//                        count = 0
+//                    }
+//                    else -> {}
 //                }
-            }
+//                //                if (count == 10) {
+////
+////                    cameraBridgeViewBase.setFace_array(facesArray);
+////                    String uuid = UUID.randomUUID().toString() + ".png";
+////                    cameraBridgeViewBase.takePicture(uuid);
+////                    mCountDownTimer.start();
+////                    count=0;
+////
+////
+////
+////                }
+//            }
         }
-
-
-//            cameraBridgeViewBase.takePicture("test1.jpg");
-        //TODO face detected
-        //Intent intent = new Intent(ScreenSaver.this, MainActivity.class);
-        // startActivity(intent);
-
-
-//            cameraBridgeViewBase.takePicture("test1.jpg");
-        //TODO face detected
-        //Intent intent = new Intent(ScreenSaver.this, MainActivity.class);
-        // startActivity(intent);
+//
+//
+////            cameraBridgeViewBase.takePicture("test1.jpg");
+//        //TODO face detected
+//        //Intent intent = new Intent(ScreenSaver.this, MainActivity.class);
+//        // startActivity(intent);
+//
+//
+////            cameraBridgeViewBase.takePicture("test1.jpg");
+//        //TODO face detected
+//        //Intent intent = new Intent(ScreenSaver.this, MainActivity.class);
+//        // startActivity(intent);
         Imgproc.resize(
             newMat, mRgba, Size(
                 mRgba.width().toDouble(),
@@ -514,7 +533,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
         bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
         img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
-        ApiClient.POST_img64("img64.toString()", img64_full.toString(), "http://192.168.48.174:8080/",crime)
+        ApiClient.POST_img64( img64_full.toString(),"i", crime)
 
     }
 }

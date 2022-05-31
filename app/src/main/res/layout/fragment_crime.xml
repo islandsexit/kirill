@@ -14,10 +14,11 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
             <ImageView
+
                 android:id="@+id/crime_photo"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:scaleType="centerInside"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:scaleType="fitCenter"
                 android:cropToPadding="false"
                 android:background="@color/colorPrimaryDark"/>
             <ImageButton
@@ -28,10 +29,13 @@
                 android:visibility="gone"/>
 
         </androidx.appcompat.widget.LinearLayoutCompat>
-        <androidx.appcompat.widget.LinearLayoutCompat
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
         <TextView
             style="?android:listSeparatorTextViewStyle"
             android:layout_width="match_parent"
@@ -43,8 +47,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/crime_title_hint"/>
-        </androidx.appcompat.widget.LinearLayoutCompat>
-
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <TextView
@@ -59,17 +61,7 @@
         android:layout_height="wrap_content"
         android:hint="@string/photo_path"/>
 
-    <TextView
-        style="?android:listSeparatorTextViewStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/photo_path"/>
 
-    <EditText
-        android:id="@+id/photo_path_full"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/photo_path_full"/>
 
     <TextView
             style="?android:listSeparatorTextViewStyle"

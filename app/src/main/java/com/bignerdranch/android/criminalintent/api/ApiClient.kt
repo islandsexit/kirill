@@ -22,7 +22,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ApiClient {
 
 
-        val baseUrl = "https://192.168.48.132/"
+        val baseUrl = "http://192.168.48.174:8080/"
 
         fun getRetroInstance(): Retrofit {
 
@@ -42,12 +42,11 @@ object ApiClient {
     fun POST_img64(img64: String,img64_full: String, URL: String?, img_path: String, img_plate_path:String) {
         val gsonBuilder = GsonBuilder()
         val retrofit = Retrofit.Builder()
-            .baseUrl(URL)
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create(gsonBuilder.create()))
             .build()
         val post_api: PostInterface = retrofit.create(PostInterface::class.java)
         val call: Call<PostPhoto> = post_api.postPlate(img64_full)
-        Log.e("POST", "img64:" + img64[2]+ "img64:" + img64_full[2] )
         call.enqueue(object : Callback<PostPhoto?> {
             override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
                 try {
@@ -59,9 +58,9 @@ object ApiClient {
                         val msg = POST_PHOTO?.palteNumber.toString()
                         Log.w("POST", "onResponse| response: Result: $RESULT msg: $msg")
                         if (RESULT == "SUCCESS") {
-                            CrimeRepository.get().addCrime(Crime(title = msg, img_path = img_path, img_path_full = img_plate_path, send = true))
+                            CrimeRepository.get().addCrime(Crime(title = msg, img_path = img_path, img_path_full = img_plate_path, send = true, found = true))
                         } else {
-                            CrimeRepository.get().addCrime(Crime(title = "NULL", img_path = img_path, img_path_full = img_plate_path, send = false))
+                            CrimeRepository.get().addCrime(Crime(title = "NULL", img_path = img_path, img_path_full = img_plate_path, send = true, found = false))
                         }
                     } else {
                         Log.e("POST", "onResponse | status: $statusCode")
@@ -84,15 +83,14 @@ object ApiClient {
 
     }
 
-    fun POST_img64(img64: String,img64_full: String, URL: String?, crime: Crime) {
+    fun POST_img64(img64: String,img64_full: String, crime: Crime) {
         val gsonBuilder = GsonBuilder()
         val retrofit = Retrofit.Builder()
-            .baseUrl(URL)
+            .baseUrl(baseUrl)
             .addConverterFactory(GsonConverterFactory.create(gsonBuilder.create()))
             .build()
         val post_api: PostInterface = retrofit.create(PostInterface::class.java)
         val call: Call<PostPhoto> = post_api.postPlate(img64)
-        Log.e("POST", "img64:" + img64[2]+ "img64:" + img64_full[2] )
         call.enqueue(object : Callback<PostPhoto?> {
             override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
                 try {
@@ -106,9 +104,12 @@ object ApiClient {
                         if (RESULT == "SUCCESS") {
                             crime.send = true
                             crime.title = msg
+                            crime.found = true
                             CrimeRepository.get().updateCrime(crime)
                         } else {
-
+                            crime.send = true
+                            crime.found = false
+                            CrimeRepository.get().updateCrime(crime)
                         }
                     } else {
                         Log.e("POST", "onResponse | status: $statusCode")

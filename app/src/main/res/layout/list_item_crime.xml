@@ -28,6 +28,16 @@
         android:src="@drawable/ic_action_name"
         app:layout_constraintEnd_toStartOf="@+id/crime_solved"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/not_found"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/ic_not_found"
+        app:layout_constraintEnd_toStartOf="@+id/crime_solved"
+        app:layout_constraintTop_toTopOf="parent" />
     <TextView
             android:id="@+id/crime_date"
             android:layout_width="0dp"

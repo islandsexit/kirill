@@ -11,6 +11,9 @@ interface CrimeDao {
     @Query("SELECT * FROM crime ORDER BY date DESC")
     fun getCrimes(): LiveData<List<Crime>>
 
+    @Query("SELECT * FROM crime WHERE send = False")
+    fun getUnsendCrimes(): LiveData<List<Crime>>
+
     @Query("SELECT * FROM crime WHERE id=(:id)")
     fun getCrime(id: UUID): LiveData<Crime?>
 

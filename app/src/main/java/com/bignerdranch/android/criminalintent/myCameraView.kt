@@ -110,21 +110,23 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
 
             bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
             img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
-            Log.i(
-                "APP_LOG", """width:${bm.width}
-                         height:${bm.height} 
-                         x:${face_array[0].x} 
-                          y:${face_array[0].y}
-                         width:${face_array[0].width}
-                         height:${face_array[0].height}"""
-            )
-            bm = Bitmap.createBitmap(
-                bm,
-                face_array[0].x,
-                face_array[0].y,
-                face_array[0].width,
-                face_array[0].height
-            )
+//            Log.i(
+//                "APP_LOG", """width:${bm.width}
+//                         height:${bm.height}
+//                         x:${face_array[0].x}
+//                          y:${face_array[0].y}
+//                         width:${face_array[0].width}
+//                         height:${face_array[0].height}"""
+//            )
+//            if(face_array.isNullOrEmpty()) {
+//                bm = Bitmap.createBitmap(
+//                    bm,
+//                    face_array[0].x,
+//                    face_array[0].y,
+//                    face_array[0].width,
+//                    face_array[0].height
+//                )
+//            }
             val mFile3 = File(
                 path_to_image,
                 UUID.randomUUID().toString() + "_" + ".jpg"

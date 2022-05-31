@@ -39,7 +39,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var solvedCheckBox: CheckBox
     private lateinit var reportButton: Button
     private lateinit var photoField: EditText
-    private lateinit var photoFieldFull: EditText
+
     private lateinit var suspectButton: Button
     private lateinit var photoButton: ImageButton
     private lateinit var photoView: ImageView
@@ -68,7 +68,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         reportButton = view.findViewById(R.id.crime_report) as Button
         suspectButton = view.findViewById(R.id.crime_suspect) as Button
         photoField = view.findViewById(R.id.photo_path) as EditText
-        photoFieldFull = view.findViewById(R.id.photo_path_full) as EditText
+
         photoView = view.findViewById(R.id.crime_photo) as ImageView
         photoButton = view.findViewById(R.id.crime_btn) as ImageButton
 
@@ -143,34 +143,10 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             }
         }
 
-        val titleWatcher_photo_full = object : TextWatcher {
 
-            override fun beforeTextChanged(
-                sequence: CharSequence?,
-                start: Int,
-                count: Int,
-                after: Int
-            ) {
-                // This space intentionally left blank
-            }
-
-            override fun onTextChanged(
-                sequence: CharSequence?,
-                start: Int,
-                before: Int,
-                count: Int
-            ) {
-                crime.img_path_full = sequence.toString()
-            }
-
-
-            override fun afterTextChanged(sequence: Editable?) {
-                // This one too
-            }
-        }
         titleField.addTextChangedListener(titleWatcher)
         photoField.addTextChangedListener(titleWatcher_photo)
-        photoFieldFull.addTextChangedListener(titleWatcher_photo_full)
+
         solvedCheckBox.apply {
             setOnCheckedChangeListener { _, isChecked ->
                 crime.isSolved = isChecked
@@ -270,7 +246,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             suspectButton.text = crime.suspect
         }
         photoField.setText((crime.img_path))
-        photoFieldFull.setText((crime.img_path_full))
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

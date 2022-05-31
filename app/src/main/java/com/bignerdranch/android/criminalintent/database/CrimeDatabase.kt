@@ -38,10 +38,18 @@ val migration_3_4 = object : Migration(3, 4) {
     }
 }
 
-val migration_4_5 = object : Migration(3, 4) {
+val migration_4_5 = object : Migration(4, 5) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL(
             "ALTER TABLE Crime ADD COLUMN send BOOL NOT NULL DEFAULT 0 "
+        )
+    }
+}
+
+val migration_5_6 = object : Migration(5, 6) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "ALTER TABLE Crime ADD COLUMN found BOOL NOT NULL DEFAULT 0 "
         )
     }
 }
