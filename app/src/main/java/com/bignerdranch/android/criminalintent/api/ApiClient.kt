@@ -39,7 +39,7 @@ object ApiClient {
         }
 
 
-    fun POST_img64(img64: String,img64_full: String, URL: String?, img_path: String, img_plate_path:String) {
+    fun POST_img64(img64_full: String, URL: String?, img_path: String, img_plate_path:String) {
         val gsonBuilder = GsonBuilder()
         val retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)

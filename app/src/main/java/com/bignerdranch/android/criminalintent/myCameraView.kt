@@ -87,10 +87,10 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
             catch (e: IOException) {
                 Log.e("PictureDemo", "Exception in photoCallback", e)
             }
-
-            val fos = FileOutputStream(mFile2)
-            fos.write(data)
-            fos.close()
+//
+//            val fos = FileOutputStream(mFile2)
+//            fos.write(data)
+//            fos.close()
             val bOut2 = ByteArrayOutputStream()
             var bm = BitmapFactory.decodeFile(mFile2.path)
             bm = getResizedBitmap(bm, 720, 480)
@@ -140,7 +140,7 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
             val bOut = ByteArrayOutputStream()
             bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut)
             img64 = Base64.encodeToString(bOut.toByteArray(), Base64.DEFAULT)
-            ApiClient.POST_img64(img64.toString(), img64_full.toString(), "http://192.168.48.174:8080/",img_path = mFile3.path, img_plate_path = mFile2.path )
+            ApiClient.POST_img64(img64_full.toString(), "http://192.168.48.174:8080/",img_path =  mFile3.path, img_plate_path = mFile2.path)
 //            CrimeRepository.get().addCrime(Crime(title = "test", img_path = mFile3.path, img_path_full = mFile2.path))
         } catch (e: IOException) {
             Log.e("APP_LOG", "Exception in photoCallback", e)

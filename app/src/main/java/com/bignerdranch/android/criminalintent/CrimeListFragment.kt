@@ -229,11 +229,29 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        var count = 0
         return when (item.itemId) {
             R.id.new_crime -> {
                 val crime = Crime()
                 crimeListViewModel.addCrime(crime)
                 callbacks?.onCrimeSelected(crime.id)
+                true
+            }
+            R.id.resend_crimes ->{
+                CrimeRepository.get().getUnsendCrimes().observe(this, Observer<List<Crime>>(){
+                    for(crime in it){
+                        lifecycleScope.launch {
+                            ResendCrime(crime)
+                            if(crime.send == true){
+                                count++
+                            }
+                            if(count == it.size){
+                                item.setIcon(R.drawable.ic_uploaded)
+                            }
+                        }
+
+                    }
+                })
                 true
             }
             else -> return super.onOptionsItemSelected(item)

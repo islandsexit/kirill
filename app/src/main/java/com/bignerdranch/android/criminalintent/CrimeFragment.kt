@@ -231,7 +231,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         dateButton.text = crime.date.toString()
         if(File(crime.img_path).exists() && crime.img_path != ""){
            val mybitmap = BitmapFactory.decodeFile(crime.img_path)
-            photoView.setImageBitmap(Bitmap.createScaledBitmap(mybitmap, 120, 120, false))
+            photoView.setImageBitmap(Bitmap.createBitmap(mybitmap))
             photoView.setVisibility(View.VISIBLE)
         }else{
             photoView.setVisibility(View.INVISIBLE)

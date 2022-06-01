@@ -24,6 +24,7 @@ class CrimeRepository private constructor(context: Context) {
     private val executor = Executors.newSingleThreadExecutor()
 
     fun getCrimes(): LiveData<List<Crime>> = crimeDao.getCrimes()
+    fun getUnsendCrimes(): LiveData<List<Crime>> = crimeDao.getUnsendCrimes()
 
     fun getCrime(id: UUID): LiveData<Crime?> = crimeDao.getCrime(id)
 
