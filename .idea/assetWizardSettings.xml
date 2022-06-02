@@ -24,7 +24,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\Admin\AppData\Local\Temp\baseline_remove_red_eye_24.xml" />
+                                                <entry key="imagePath" value="C:\Users\Admin\AppData\Local\Temp\baseline_delete_forever_24.xml" />
                                                 <entry key="opacityPercent" value="80" />
                                               </map>
                                             </option>
@@ -36,7 +36,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="file:/$PROJECT_DIR$/../../SDK/icons/material/materialicons/remove_red_eye/baseline_remove_red_eye_24.xml" />
+                                                <entry key="url" value="file:/$PROJECT_DIR$/../../SDK/icons/material/materialicons/delete_forever/baseline_delete_forever_24.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -80,9 +80,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_not_found" />
+                                      <entry key="outputName" value="ic_delete_white_24" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="ac6a6a" />
+                                      <entry key="themeColor" value="ffffff" />
                                     </map>
                                   </option>
                                 </PersistentState>

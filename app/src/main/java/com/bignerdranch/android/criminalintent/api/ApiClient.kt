@@ -60,22 +60,22 @@ object ApiClient {
                         if (RESULT == "SUCCESS") {
                             CrimeRepository.get().addCrime(Crime(title = msg, img_path = img_path, img_path_full = img_plate_path, send = true, found = true))
                         } else {
-                            CrimeRepository.get().addCrime(Crime(title = "NULL", img_path = img_path, img_path_full = img_plate_path, send = true, found = false))
+                            CrimeRepository.get().addCrime(Crime(title = "Не распознан номер", img_path = img_path, img_path_full = img_plate_path, send = true, found = false))
                         }
                     } else {
                         Log.e("POST", "onResponse | status: $statusCode")
-                        CrimeRepository.get().addCrime(Crime(title = "NULL", img_path = img_path, img_path_full = img_plate_path, send = false))
+                        CrimeRepository.get().addCrime(Crime(title = "Не распознан номер", img_path = img_path, img_path_full = img_plate_path, send = false))
                     }
                 } catch (e: Exception) {
                     Log.e("POST", "onResponse | exception", e)
-                    CrimeRepository.get().addCrime(Crime(title = "NULL", img_path = img_path, img_path_full = img_plate_path, send = false))
+                    CrimeRepository.get().addCrime(Crime(title = "Не распознан номер", img_path = img_path, img_path_full = img_plate_path, send = false))
 
                 }
             }
 
             override fun onFailure(call: Call<PostPhoto?>, t: Throwable) {
                 Log.e("POST", "onFailure", t)
-                CrimeRepository.get().addCrime(Crime(title = "NULL", img_path = img_path, img_path_full = img_plate_path, send = false))
+                CrimeRepository.get().addCrime(Crime(title = "Не распознан номер", img_path = img_path, img_path_full = img_plate_path, send = false))
 
             }
         })
@@ -108,16 +108,71 @@ object ApiClient {
                             CrimeRepository.get().updateCrime(crime)
                         } else {
                             crime.send = true
+                            crime.title = "Не распознан номер"
                             crime.found = false
                             CrimeRepository.get().updateCrime(crime)
                         }
                     } else {
                         Log.e("POST", "onResponse | status: $statusCode")
+                        crime.send = false
+                        CrimeRepository.get().updateCrime(crime)
+                    }
+                } catch (e: Exception) {
+                    Log.e("POST", "onResponse | exception", e)
+                    crime.send = false
+                    CrimeRepository.get().updateCrime(crime)
+
+                }
+            }
+
+            override fun onFailure(call: Call<PostPhoto?>, t: Throwable) {
+                Log.e("POST", "onFailure", t)
+
+
+            }
+        })
+
+
+    }
+
+
+    fun POST_img64_with_edited_text(img64: String,img64_full: String, crime: Crime) {
+        val gsonBuilder = GsonBuilder()
+        val retrofit = Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(GsonConverterFactory.create(gsonBuilder.create()))
+            .build()
+        val post_api: PostInterface = retrofit.create(PostInterface::class.java)
+        val call: Call<PostPhoto> = post_api.postPlateEdited(img64, crime.title)
+        call.enqueue(object : Callback<PostPhoto?> {
+            override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
+                try {
+                    val statusCode = response.code()
+                    if (statusCode == 200) {
+                        val POST_PHOTO: PostPhoto? = response.body()
+//                            val data_get: List<PostPhoto> = PostPhoto.getResponse()
+                        val RESULT = POST_PHOTO?.RESULT.toString()
+                        val msg = POST_PHOTO?.palteNumber.toString()
+                        Log.w("POST", "onResponse| response: Result: $RESULT msg: $msg")
+                        if (RESULT == "SUCCESS") {
+                            crime.send = true
+                            crime.found = true
+                            CrimeRepository.get().updateCrime(crime)
+                        } else {
+                            crime.send = false
+                            crime.found = true
+                            CrimeRepository.get().updateCrime(crime)
+                        }
+                    } else {
+                        crime.send = false
+                        CrimeRepository.get().updateCrime(crime)
+                        Log.e("POST", "onResponse | status: $statusCode")
 
                     }
                 } catch (e: Exception) {
                     Log.e("POST", "onResponse | exception", e)
-
+                    crime.send = false
+                    CrimeRepository.get().updateCrime(crime)
 
                 }
             }
@@ -134,7 +189,8 @@ object ApiClient {
 
 
 
-    }
+
+}
 
 
 

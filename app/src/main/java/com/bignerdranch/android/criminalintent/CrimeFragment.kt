@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
-import android.provider.MediaStore
 import android.text.Editable
 import android.text.TextWatcher
 import android.text.format.DateFormat
@@ -18,10 +17,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.bignerdranch.android.criminalintent.api.ApiClient
 import kotlinx.android.synthetic.main.fragment_crime.*
 import java.io.File
+import java.time.LocalDateTime
 import java.util.*
 
 private const val TAG = "CrimeFragment"
@@ -33,6 +35,8 @@ private const val DATE_FORMAT = "EEE, MMM, dd"
 
 class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
+    var isEdit = false
+
     private lateinit var crime: Crime
     private lateinit var titleField: EditText
     private lateinit var dateButton: Button
@@ -41,6 +45,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var photoField: EditText
 
     private lateinit var suspectButton: Button
+    private lateinit var resend_fragment_activity: Button
     private lateinit var photoButton: ImageButton
     private lateinit var photoView: ImageView
 
@@ -71,6 +76,8 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
         photoView = view.findViewById(R.id.crime_photo) as ImageView
         photoButton = view.findViewById(R.id.crime_btn) as ImageButton
+
+        resend_fragment_activity = view.findViewById(R.id.resend_fragment_activity) as Button
 
         return view
     }
@@ -109,6 +116,10 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
                 count: Int
             ) {
                 crime.title = sequence.toString()
+                isEdit = true
+                resend_fragment_activity.visibility = View.VISIBLE
+                resend_fragment_activity.setText("Отправить изменения")
+
             }
 
 
@@ -158,22 +169,30 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
                 setTargetFragment(this@CrimeFragment, REQUEST_DATE)
                 show(this@CrimeFragment.requireFragmentManager(), DIALOG_DATE)
             }
-//            sendExplorer("/data/user/0/com.bignerdranch.android.criminalintent/files/307eadff-6689-4c16-adbc-68325e5cd76e_.jpg")
         }
 
-        reportButton.setOnClickListener {
-            Intent(Intent.ACTION_SEND).apply {
-                type = "text/plain"
-                putExtra(Intent.EXTRA_TEXT, getCrimeReport())
-                putExtra(
-                    Intent.EXTRA_SUBJECT,
-                    getString(R.string.crime_report_subject))
-            }.also { intent ->
-                val chooserIntent =
-                    Intent.createChooser(intent, getString(R.string.send_report))
-                startActivity(chooserIntent)
-            }
+        if(crime.send || crime.found){
+            resend_fragment_activity.visibility = View.GONE
+
         }
+
+        resend_fragment_activity.setOnClickListener{
+           val img_64 = PicturesUtils.getImg_64(crime)
+            if(img_64 != ""){
+                if(!isEdit) {
+                    ApiClient.POST_img64(img_64.toString(), "i", crime)
+
+                }else{
+                    crime.title = titleField.text.toString()
+                    ApiClient.POST_img64_with_edited_text(img_64.toString(), "i", crime)
+                }
+                crime.date = Calendar.getInstance().time
+                val fm: FragmentManager = requireActivity().supportFragmentManager
+                fm.popBackStack()
+
+        }}
+
+
 
         suspectButton.apply {
             val pickContactIntent =
@@ -192,33 +211,12 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             }
         }
 
-//        photoButton.apply {
-//            val packageManager: PackageManager = requireActivity().packageManager
-//
-//            val captureImage = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-//
-//            val resoledActivity: ResolveInfo? = packageManager.resolveActivity(captureImage, PackageManager.MATCH_DEFAULT_ONLY)
-//
-//            if(resoledActivity == null){
-//                isEnabled = false
-//            }
-//            setOnClickListener {
-//                captureImage.putExtra(MediaStore.EXTRA_OUTPUT, photoUri)
-//
-//                val cameraActivities: List<ResolveInfo> = packageManager.queryIntentActivities(captureImage, PackageManager.MATCH_DEFAULT_ONLY)
-//
-//                for(cameraActivity in cameraActivities){
-//                    requireActivity().grantUriPermission(cameraActivity.activityInfo.packageName, photoUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-//                }
-//                startActivityForResult(captureImage, 2)
-//
-//            }
-//        }
+
     }
 
     override fun onStop() {
         super.onStop()
-        crimeDetailViewModel.saveCrime(crime)
+//        crimeDetailViewModel.saveCrime(crime)
     }
 
     override fun onDateSelected(date: Date) {

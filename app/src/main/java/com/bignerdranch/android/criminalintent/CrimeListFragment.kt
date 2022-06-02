@@ -1,7 +1,6 @@
 package com.bignerdranch.android.criminalintent
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -16,6 +15,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -31,14 +31,13 @@ import org.opencv.android.OpenCVLoader
 import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import org.opencv.objdetect.CascadeClassifier
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.util.*
+
 
 private const val TAG = "CrimeListFragment"
 private const val SAVED_SUBTITLE_VISIBLE = "subtitle"
+private const val PICK_IMAGE = 1
 
 class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2 {
 
@@ -46,7 +45,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
     private lateinit var mRgba:Mat
     private lateinit var mGray:Mat
-    private lateinit var cameraBridgeViewBase: myCameraView
+    public lateinit var cameraBridgeViewBase: myCameraView
     var img64_full: String? = null
 
     var baseLoaderCallback: BaseLoaderCallback? = null
@@ -65,6 +64,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
     private var can_take_photo = false
 
 
+
     private lateinit var crimeRecyclerView: RecyclerView
     private lateinit var img_file: File
     private lateinit var mybitmap: Bitmap
@@ -76,6 +76,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
     val crimeListViewModel: CrimeListViewModel by lazy {
         ViewModelProviders.of(this).get(CrimeListViewModel::class.java)
     }
+
 
 
     private var callbacks: Callbacks? = null
@@ -90,12 +91,10 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
 
 
-
-
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
         callbacks = context as? Callbacks
+
     }
 
 
@@ -118,7 +117,13 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         photoButton = view.findViewById(R.id.camera_button) as ImageButton
 
         photoButton.setOnClickListener {
-            cameraBridgeViewBase.takePicture(UUID.randomUUID().toString())
+            try {
+                cameraBridgeViewBase.takePicture(UUID.randomUUID().toString())
+            }
+            catch (e: Exception){
+                Log.e("PictureDemo", "Exception in take photo", e)
+            }
+
         }
 
         //        PopUpClass popUp = new PopUpClass();
@@ -208,6 +213,8 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
 
 
+
+
         return view
     }
 
@@ -232,17 +239,20 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         var count = 0
         return when (item.itemId) {
             R.id.new_crime -> {
-                val crime = Crime()
-                crimeListViewModel.addCrime(crime)
-                callbacks?.onCrimeSelected(crime.id)
+//                val crime = Crime()
+//                crimeListViewModel.addCrime(crime)
+//                callbacks?.onCrimeSelected(crime.id)
+              pickPhoto()
+
                 true
             }
+            // todo button for resend
             R.id.resend_crimes ->{
                 CrimeRepository.get().getUnsendCrimes().observe(this, Observer<List<Crime>>(){
                     for(crime in it){
                         lifecycleScope.launch {
                             ResendCrime(crime)
-                            if(crime.send == true){
+                            if(crime.send){
                                 count++
                             }
                             if(count == it.size){
@@ -252,10 +262,62 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
                     }
                 })
+
                 true
             }
             else -> return super.onOptionsItemSelected(item)
         }
+    }
+
+    val selectImageFromGalleryResult = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            //todo image picker
+
+            Log.i("Image_picker", uri.path.toString())
+            if(it != null) {
+                try {
+                    var path_to_image = context?.filesDir
+                    val inputStream: InputStream? =
+                        context?.getContentResolver()?.openInputStream(uri)
+                    val bOut2 = ByteArrayOutputStream()
+                    var bm = BitmapFactory.decodeStream(inputStream)
+                    bm = PicturesUtils.getResizedBitmap(bm, 720, 480)
+                    bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
+                    img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
+                    val mFile3 = File(
+                        path_to_image,
+                        UUID.randomUUID().toString() + "_" + ".jpg"
+                    )
+                    var fos2: FileOutputStream? = null
+                    fos2 = FileOutputStream(mFile3)
+                    Log.i("APP_LOG", mFile3.absolutePath)
+                    bm.compress(Bitmap.CompressFormat.JPEG, 100, fos2)
+                    val bOut = ByteArrayOutputStream()
+                    bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut)
+                    val img64 = Base64.encodeToString(bOut.toByteArray(), Base64.DEFAULT)
+                    ApiClient.POST_img64(
+                        img64_full.toString(),
+                        "http://192.168.48.174:8080/",
+                        img_path = mFile3.path,
+                        img_plate_path = "None"
+                    )
+                } catch (e: IOException) {
+                    Log.e("APP_LOG", "Exception in photoCallback", e)
+                }
+            }
+
+        }
+    }
+
+    private fun pickPhoto() {
+//        val pickPhotoIntent = Intent()
+//        pickPhotoIntent.setType("image/*")
+//        pickPhotoIntent.setAction(Intent.ACTION_GET_CONTENT)
+//        startActivityForResult(Intent.createChooser(pickPhotoIntent,"Выбери откуда взять фото"), PICK_IMAGE)
+
+          selectImageFromGalleryResult.launch("image/*")
+
+
     }
 
     private fun updateUI(crimes: List<Crime>) {
@@ -323,14 +385,16 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         }
 
         override fun onClick(v: View) {
-            if (crime.send) {
-                callbacks?.onCrimeSelected(crime.id)
-            }
-            else{
-               lifecycleScope.launch {
-                   ResendCrime(crime)
-               }
-            }
+            callbacks?.onCrimeSelected(crime.id)
+//            if (crime.send) {
+//                callbacks?.onCrimeSelected(crime.id)
+//            }
+//            else{
+//               lifecycleScope.launch {
+//                   delay(3000)
+//                   ResendCrime(crime)
+//               }
+//            }
         }
     }
 
@@ -344,6 +408,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
             return CrimeHolder(view)
         }
 
+
         override fun onBindViewHolder(holder: CrimeHolder, position: Int) {
             val crime = crimes[position]
             holder.bind(crime)
@@ -352,7 +417,8 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         override fun getItemCount() = crimes.size
     }
 
-    companion object {
+    companion object{
+
         fun newInstance(): CrimeListFragment {
             return CrimeListFragment()
         }
@@ -522,36 +588,33 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         callbacks = null
     }
 
-    fun getResizedBitmap(bm: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
-        val width = bm.width
-        val height = bm.height
-        val scaleWidth = newWidth.toFloat() / width
-        val scaleHeight = newHeight.toFloat() / height
-        val matrix = Matrix()
-        matrix.postScale(scaleWidth, scaleHeight)
-        return Bitmap.createBitmap(
-            bm, 0, 0, width, height, matrix, false
-        )
-    }
 
     suspend fun ResendCrime(crime: Crime){
         //todo удалить строку, на которую нажал и коорая не отправилась
-        val bOut2 = ByteArrayOutputStream()
-        var bm = BitmapFactory.decodeFile(crime.img_path_full)
-        bm = getResizedBitmap(bm, 720, 480)
+        if(File(crime.img_path_full).exists() && crime.img_path_full != "") {
+            val bOut2 = ByteArrayOutputStream()
+            var bm = BitmapFactory.decodeFile(crime.img_path_full)
+            bm = PicturesUtils.getResizedBitmap(bm, 720, 480)
 
 
-        val mat = Matrix()
-        mat.postRotate(90f)
-        bm = Bitmap.createBitmap(
-            bm, 0, 0,
-            bm.width, bm.height,
-            mat, true
-        )
+            val mat = Matrix()
+            mat.postRotate(90f)
+            bm = Bitmap.createBitmap(
+                bm, 0, 0,
+                bm.width, bm.height,
+                mat, true
+            )
 
-        bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
-        img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
-        ApiClient.POST_img64( img64_full.toString(),"i", crime)
+            bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
+            img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
+
+            ApiClient.POST_img64(img64_full.toString(), "i", crime)
+        }
+
 
     }
+
+    fun getCmaerabrridge() = cameraBridgeViewBase
+
+
 }

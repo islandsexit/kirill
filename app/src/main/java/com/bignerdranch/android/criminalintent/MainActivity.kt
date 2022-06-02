@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.Settings
+import android.view.KeyEvent
 import android.view.View
 import android.widget.Button
 import androidx.annotation.RequiresApi
@@ -70,5 +71,36 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
         crimeRepository.addCrime(Crime())
     }
 
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        when (keyCode) {
+            KeyEvent.KEYCODE_MENU -> {
 
-}
+                return true
+            }
+            KeyEvent.KEYCODE_SEARCH -> {
+
+                return true
+            }
+            KeyEvent.KEYCODE_BACK -> {
+                onBackPressed()
+                return true
+            }
+            KeyEvent.KEYCODE_VOLUME_UP -> {
+                val fm = supportFragmentManager
+                val fragment: CrimeListFragment? =
+                    fm.findFragmentById(R.id.fragment_container) as CrimeListFragment?
+                fragment?.cameraBridgeViewBase?.takePicture(UUID.randomUUID().toString())
+                return true
+            }
+            KeyEvent.KEYCODE_VOLUME_DOWN -> {
+                return false
+            }
+        }
+        return super.onKeyDown(keyCode, event)
+    }
+
+
+    }
+
+
+

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
@@ -9,30 +9,29 @@
     <com.bignerdranch.android.criminalintent.myCameraView
         android:id="@+id/myCameraView"
         android:layout_width="match_parent"
-        android:layout_height="480px"
+        android:layout_height="720px"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageButton
+        android:id="@+id/camera_button"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
 
+        android:src="@drawable/ic_camera" />
     <androidx.recyclerview.widget.RecyclerView
 
         android:id="@+id/crime_recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+
         android:layout_below="@id/myCameraView"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/camera_button"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginBottom="50dp"/>
-
-    <ImageButton
-        android:id="@+id/camera_button"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_weight="6"
+         android:layout_height="0dp"/>
 
 
-        android:layout_below="@+id/crime_recycler_view"
-        android:layout_marginTop="-50dp"
-        android:src="@drawable/ic_camera" />
-</RelativeLayout>
-
+</LinearLayout>

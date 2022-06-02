@@ -82,7 +82,14 @@
             android:id="@+id/crime_date"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            tools:text="Wed Nov 14 11:56 EST 2018"/>
+            tools:text="Wed Nov 14 11:56 EST 2018"
+        android:enabled="false"/>
+    <Button
+        android:id="@+id/resend_fragment_activity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/resend_btn"
+        />
 
     <CheckBox
             android:id="@+id/crime_solved"

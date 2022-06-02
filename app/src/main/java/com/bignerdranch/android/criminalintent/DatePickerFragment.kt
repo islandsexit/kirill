@@ -14,6 +14,8 @@ private const val ARG_DATE = "date"
 class DatePickerFragment : DialogFragment() {
 
     interface Callbacks {
+
+
         fun onDateSelected(date: Date)
     }
 

@@ -93,7 +93,7 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
 //            fos.close()
             val bOut2 = ByteArrayOutputStream()
             var bm = BitmapFactory.decodeFile(mFile2.path)
-            bm = getResizedBitmap(bm, 720, 480)
+            bm = PicturesUtils.getResizedBitmap(bm, 720, 480)
 
 
 //            Log.i("APP_LOG", img64_full.toString())
@@ -147,29 +147,7 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
         }
     }
 
-    fun getResizedBitmap(bm: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
-        val width = bm.width
-        val height = bm.height
-        val scaleWidth = newWidth.toFloat() / width
-        val scaleHeight = newHeight.toFloat() / height
-        val matrix = Matrix()
-        matrix.postScale(scaleWidth, scaleHeight)
-        return Bitmap.createBitmap(
-            bm, 0, 0, width, height, matrix, false
-        )
-    }
 
-    fun rotate_array(
-        face_array: Array<Rect?>?,
-        height: Int,
-        width: Int
-    ): Array<Rect?> {
-        return arrayOfNulls(3)
-    }
-
-    suspend fun createPhoto(){
-
-    }
 
     companion object {
         private const val TAG = "myCameraView"

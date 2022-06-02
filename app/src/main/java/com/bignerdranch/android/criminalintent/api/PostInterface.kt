@@ -10,4 +10,9 @@ interface PostInterface {
     @FormUrlEncoded
     @POST("/onplate")
     fun  postPlate( @Field("image") img64_full: String): Call<PostPhoto>
+
+
+    @FormUrlEncoded
+    @POST("/onplate")
+    fun  postPlateEdited( @Field("image") img64_full: String, @Field("plate") edited_plate_number: String): Call<PostPhoto>
 }
