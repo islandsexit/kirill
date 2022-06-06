@@ -59,7 +59,6 @@ object PicturesUtils {
         if(File(crime.img_path).exists() && crime.img_path != "") {
             val bOut2 = ByteArrayOutputStream()
             var bm = BitmapFactory.decodeFile(crime.img_path)
-            bm = getResizedBitmap(bm, 720, 480)
             bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut2)
             var img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
             return img64_full

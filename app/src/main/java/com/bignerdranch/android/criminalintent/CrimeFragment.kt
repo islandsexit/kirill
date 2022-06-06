@@ -44,6 +44,11 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var reportButton: Button
     private lateinit var photoField: EditText
 
+    private lateinit var iconFound: ImageView
+    private lateinit var iconSend: ImageView
+    private lateinit var textFound: TextView
+    private lateinit var textSend: TextView
+
     private lateinit var suspectButton: Button
     private lateinit var resend_fragment_activity: Button
     private lateinit var photoButton: ImageButton
@@ -58,6 +63,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         crime = Crime()
         val crimeId: UUID = arguments?.getSerializable(ARG_CRIME_ID) as UUID
         crimeDetailViewModel.loadCrime(crimeId)
+        isEdit = false
     }
 
     override fun onCreateView(
@@ -76,6 +82,19 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
         photoView = view.findViewById(R.id.crime_photo) as ImageView
         photoButton = view.findViewById(R.id.crime_btn) as ImageButton
+
+        iconFound = view.findViewById(R.id.crimefragment_icon_found)
+        iconSend = view.findViewById(R.id.crimefragment_icon_send)
+        textFound = view.findViewById(R.id.crimefragment_text_found)
+        textSend = view.findViewById(R.id.crimefragment_text_send)
+
+        titleField.setOnClickListener {
+            isEdit = true
+            resend_fragment_activity.visibility = View.VISIBLE
+            resend_fragment_activity.setText("Отправить изменения")
+        }
+
+
 
         resend_fragment_activity = view.findViewById(R.id.resend_fragment_activity) as Button
 
@@ -106,7 +125,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
                 count: Int,
                 after: Int
             ) {
-                // This space intentionally left blank
+
             }
 
             override fun onTextChanged(
@@ -116,15 +135,13 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
                 count: Int
             ) {
                 crime.title = sequence.toString()
-                isEdit = true
-                resend_fragment_activity.visibility = View.VISIBLE
-                resend_fragment_activity.setText("Отправить изменения")
+
 
             }
 
 
             override fun afterTextChanged(sequence: Editable?) {
-                // This one too
+
             }
         }
 
@@ -245,6 +262,15 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         }
         photoField.setText((crime.img_path))
 
+        if(!crime.send){
+            iconSend.visibility = View.VISIBLE
+            textSend.visibility = View.VISIBLE
+        }else if(!crime.found){
+            iconFound.visibility = View.VISIBLE
+            textFound.visibility = View.VISIBLE
+        }
+
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -278,23 +304,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         }
     }
 
-    private fun getCrimeReport(): String {
-        val solvedString = if (crime.isSolved) {
-            getString(R.string.crime_report_solved)
-        } else {
-            getString(R.string.crime_report_unsolved)
-        }
 
-        val dateString = DateFormat.format(DATE_FORMAT, crime.date).toString()
-        val suspect = if (crime.suspect.isBlank()) {
-            getString(R.string.crime_report_no_suspect)
-        } else {
-            getString(R.string.crime_report_suspect, crime.suspect)
-        }
-
-        return getString(R.string.crime_report,
-            crime.title, dateString, solvedString, suspect)
-    }
 
 
     companion object {
@@ -309,11 +319,5 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         }
     }
 
-    fun sendExplorer(img: String){
-        var intentExplorer : Intent = Intent(  )
-        intentExplorer.setAction(Intent.ACTION_VIEW)
-        val file: File = File(img)
-        intentExplorer.setDataAndType(Uri.fromFile(file), "image/*")
-        startActivity(intentExplorer)
-    }
+
 }

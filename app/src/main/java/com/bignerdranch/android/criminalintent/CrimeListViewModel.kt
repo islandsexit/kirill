@@ -11,4 +11,12 @@ class CrimeListViewModel : ViewModel() {
     fun addCrime(crime: Crime) {
         crimeRepository.addCrime(crime)
     }
+
+    fun deleteCrime(crime:Crime){
+        crimeRepository.deleteCrime(crime)
+    }
+
+    fun getCrimeFromPosition(position:Int):Crime{
+        return crimeRepository.getCrimeFromPosition(position)
+    }
 }

@@ -3,7 +3,6 @@ package com.bignerdranch.android.criminalintent
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
@@ -17,13 +16,19 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.core.app.ActivityScenario.launch
 import com.bignerdranch.android.criminalintent.api.ApiClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.CameraBridgeViewBase
 import org.opencv.android.LoaderCallbackInterface
@@ -55,6 +60,10 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
     private val mRelativeFaceSize = 0.1f
     private var mAbsoluteFaceSize = 0
     private var count = 0
+
+    private var isScaner = false
+    private var flashEnable = false
+    private lateinit var menu: Menu
 
     private val TIMER_DURATION = 2000L
     private val TIMER_INTERVAL = 100L
@@ -212,6 +221,23 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         }
 
 
+        //todo свайп
+        val swipeHandler = object : SwipeToDeleteCallback(this.context) {
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                val adapter = crimeRecyclerView.adapter
+                CoroutineScope(Dispatchers.Default).launch{
+                    val crime = crimeListViewModel.getCrimeFromPosition(viewHolder.adapterPosition)
+                    crimeListViewModel.deleteCrime(crime)
+                   val file = File(crime.img_path)
+                    if(file.exists()){
+                        file.delete()
+                    }
+                    Log.i("AAAAAAAAAAPPPPPP_TAAAGGG", "Deleting ${crime.title}")
+                }
+            }
+        }
+        val itemTouchHelper = ItemTouchHelper(swipeHandler)
+        itemTouchHelper.attachToRecyclerView(crimeRecyclerView)
 
 
 
@@ -220,6 +246,8 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
     override fun onResume() {
         super.onResume()
+
+
         if (!OpenCVLoader.initDebug()) {
             Toast.makeText(context, "There's a problem, yo!", Toast.LENGTH_SHORT)
                 .show()
@@ -231,6 +259,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
+        this.menu = menu
         inflater.inflate(R.menu.fragment_crime_list, menu)
     }
 
@@ -252,10 +281,11 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
                     for(crime in it){
                         lifecycleScope.launch {
                             ResendCrime(crime)
+                            crime.date = Calendar.getInstance().time
                             if(crime.send){
                                 count++
                             }
-                            if(count == it.size){
+                            if(count-1 == it.size){
                                 item.setIcon(R.drawable.ic_uploaded)
                             }
                         }
@@ -265,6 +295,38 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
                 true
             }
+            R.id.plate_selector ->{
+                if (!isScaner) {
+                    isScaner = true
+                    item.setIcon(R.drawable.ic_scaner)
+                    photoButton.visibility = View.GONE
+                }
+                else{
+                    isScaner = false
+                    item.setIcon(R.drawable.ic_cam)
+                    photoButton.visibility = View.VISIBLE
+                }
+
+                true
+            }
+
+            R.id.flash ->{
+                if(flashEnable){
+                    cameraBridgeViewBase.flash(false)
+                    item.setIcon(R.drawable.ic_flash_off)
+                    flashEnable = false
+                }
+                else{
+                    cameraBridgeViewBase.flash(true)
+                    item.setIcon(R.drawable.ic_flash_on)
+                    flashEnable = true
+                }
+
+
+
+                true
+            }
+
             else -> return super.onOptionsItemSelected(item)
         }
     }
@@ -349,9 +411,6 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
         fun bind(crime: Crime) {
             this.crime = crime
-            if(crime.isSolved){
-                titleTextView.setTextColor(Color.parseColor("red"))
-            }
             titleTextView.text = this.crime.title
             dateTextView.text = this.crime.date.toString()
 //            var path_to_image = "/storage/emulated/0/${crime.img_path}"
@@ -412,6 +471,10 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         override fun onBindViewHolder(holder: CrimeHolder, position: Int) {
             val crime = crimes[position]
             holder.bind(crime)
+        }
+        fun removeAt(position: Int) {
+//            crimes.removeAt(position) //todo remove adapter
+            notifyItemRemoved(position)
         }
 
         override fun getItemCount() = crimes.size
@@ -476,29 +539,30 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
             Log.i("MainActivity.this", "w:" + facesArray[0].width)
             Log.i("MainActivity.this", "h:" + facesArray[0].height)
             Log.e(TAG, "plate detected!")
-//            count++
-//            if (can_take_photo) {
-//                when (count) {
-//                    50 -> {
-//                        Log.i(
-//                            TAG,
-//                            "toast wait---------------------------------------------------------------------------------------------------"
-//                        )
-//
-//                        mCountDownTimer2.cancel()
-//                        mCountDownTimer2.start()
-//                        count++
-//                    }
-//                    55 -> {
-//                        cameraBridgeViewBase.setFace_array(facesArray)
-//                        val uuid = UUID.randomUUID().toString() + ".png"
-//                        cameraBridgeViewBase.takePicture(uuid)
-//                        mCountDownTimer.cancel()
-//                        mCountDownTimer.start()
-//                        count = 0
-//                    }
-//                    else -> {}
-//                }
+            if (isScaner) {
+                count++
+                if (can_take_photo) {
+                    when (count) {
+                        50 -> {
+                            Log.i(
+                                TAG,
+                                "toast wait---------------------------------------------------------------------------------------------------"
+                            )
+
+                            mCountDownTimer2.cancel()
+                            mCountDownTimer2.start()
+                            count++
+                        }
+                        55 -> {
+                            cameraBridgeViewBase.setFace_array(facesArray)
+                            val uuid = UUID.randomUUID().toString() + ".png"
+                            cameraBridgeViewBase.takePicture(uuid)
+                            mCountDownTimer.cancel()
+                            mCountDownTimer.start()
+                            count = 0
+                        }
+                        else -> {}
+                    }
 //                //                if (count == 10) {
 ////
 ////                    cameraBridgeViewBase.setFace_array(facesArray);
@@ -510,20 +574,12 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 ////
 ////
 ////                }
-//            }
+                }
+            }
         }
 //
 //
-////            cameraBridgeViewBase.takePicture("test1.jpg");
-//        //TODO face detected
-//        //Intent intent = new Intent(ScreenSaver.this, MainActivity.class);
-//        // startActivity(intent);
-//
-//
-////            cameraBridgeViewBase.takePicture("test1.jpg");
-//        //TODO face detected
-//        //Intent intent = new Intent(ScreenSaver.this, MainActivity.class);
-//        // startActivity(intent);
+
         Imgproc.resize(
             newMat, mRgba, Size(
                 mRgba.width().toDouble(),
@@ -568,6 +624,8 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         if (cameraBridgeViewBase != null) {
             cameraBridgeViewBase.disableView()
         }
+        flashEnable = false
+        menu.findItem(R.id.flash).setIcon(R.drawable.ic_flash_off)
     }
 
     override fun onStart() {

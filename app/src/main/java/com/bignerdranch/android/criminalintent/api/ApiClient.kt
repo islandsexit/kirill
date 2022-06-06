@@ -153,33 +153,53 @@ object ApiClient {
 //                            val data_get: List<PostPhoto> = PostPhoto.getResponse()
                         val RESULT = POST_PHOTO?.RESULT.toString()
                         val msg = POST_PHOTO?.palteNumber.toString()
-                        Log.w("POST", "onResponse| response: Result: $RESULT msg: $msg")
+                        Log.w("POST_img64_with_edited_text", "onResponse| response: Result: $RESULT msg: $msg")
                         if (RESULT == "SUCCESS") {
                             crime.send = true
                             crime.found = true
+                            if(crime.title == ""){
+                                crime.title = msg
+                            }
                             CrimeRepository.get().updateCrime(crime)
                         } else {
-                            crime.send = false
-                            crime.found = true
+                            if(crime.title == "") {
+                                crime.send = true
+                                crime.found = false
+                                crime.title = "Не распознан номер"
+                            }
+                            else{
+                                crime.send = true
+                                crime.found = false
+                            }
                             CrimeRepository.get().updateCrime(crime)
                         }
                     } else {
                         crime.send = false
+                        if(crime.title != "") {
+                            crime.title  = "Сервер недоступен"
+                        }
                         CrimeRepository.get().updateCrime(crime)
-                        Log.e("POST", "onResponse | status: $statusCode")
+                        Log.e("POST_img64_with_edited_text", "onResponse | status: $statusCode")
 
                     }
                 } catch (e: Exception) {
-                    Log.e("POST", "onResponse | exception", e)
+                    Log.e("POST_img64_with_edited_text", "onResponse | exception", e)
                     crime.send = false
+                    if(crime.title != "") {
+                        crime.title  = "Сервер недоступен"
+                    }
                     CrimeRepository.get().updateCrime(crime)
 
                 }
             }
 
             override fun onFailure(call: Call<PostPhoto?>, t: Throwable) {
-                Log.e("POST", "onFailure", t)
-
+                Log.e("POST_img64_with_edited_text", "onFailure", t)
+                crime.send = false
+                if(crime.title != "") {
+                    crime.title  = "Сервер недоступен"
+                }
+                CrimeRepository.get().updateCrime(crime)
 
             }
         })

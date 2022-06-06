@@ -5,8 +5,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.hardware.Camera
+import android.hardware.Camera.Parameters.FLASH_MODE_OFF
+import android.hardware.Camera.Parameters.FLASH_MODE_TORCH
 import android.hardware.Camera.PictureCallback
-import android.os.Environment
 import android.util.AttributeSet
 import android.util.Base64
 import android.util.Log
@@ -25,9 +26,24 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
 
 
 
-//    var POST: Post_class = Post_class()
+
     val effectList: List<String>
         get() = mCamera.parameters.supportedColorEffects
+
+    fun flash(enable: Boolean) {
+        if (!enable){
+            mCamera.parameters
+            val params = mCamera.parameters
+            params.flashMode = FLASH_MODE_OFF
+            mCamera.parameters = params
+        }
+        else {
+            mCamera.parameters
+            val params = mCamera.parameters
+            params.flashMode = FLASH_MODE_TORCH
+            mCamera.parameters = params
+        }
+    }
 
     fun setFace_array(face_arrayset: Array<Rect>) {
         face_array = face_arrayset

@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/flash"
+        android:icon="@drawable/ic_flash_off"
+        android:title="@string/flash"
+        app:showAsAction="ifRoom|withText"
+        />
+    <item android:id="@+id/plate_selector"
+        android:icon="@drawable/ic_cam"
+        android:title="@string/type_of_photo"
+        app:showAsAction="ifRoom|withText"
+        />
     <item
         android:id="@+id/new_crime"
         android:icon="@drawable/ic_menu_add"
@@ -11,4 +21,7 @@
         android:title="@string/resend"
         app:showAsAction="ifRoom|withText"
         />
+
+
+
 </menu>

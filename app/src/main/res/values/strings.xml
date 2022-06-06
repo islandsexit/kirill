@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">ParkingTool</string>
+    <string name="app_name">VIGPark-M</string>
     <string name="crime_title_hint">Номер</string>
     <string name="crime_title_label">Номер</string>
-    <string name="crime_details_label">Дтали</string>
+    <string name="crime_details_label">Детали</string>
     <string name="crime_solved_label">Сотрудник</string>
     <string name="new_crime">Новый номер</string>
     <string name="crime_suspect_text">Выбери получателя</string>
@@ -20,4 +20,9 @@
     <string name="photo_path_full">Photo_path_full</string>
     <string name="resend">Повторить отправку</string>
     <string name="resend_btn">Отправить заново</string>
+
+    <string name="plate_not_found">Не распознан номер</string>
+    <string name="send_error">Ошибка отправки на сервер</string>
+    <string name="type_of_photo">Изменить тип фотографирования</string>
+    <string name="flash">Фонарик</string>
 </resources>
