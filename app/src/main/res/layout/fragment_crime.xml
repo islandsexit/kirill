@@ -90,11 +90,14 @@
             android:layout_height="wrap_content"
             android:text="@string/crime_title_label"/>
 
-        <EditText
+        <com.bignerdranch.android.criminalintent.EditTextWithDel
             android:id="@+id/crime_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/crime_title_hint"/>
+            android:hint="@string/crime_title_hint"
+            android:singleLine="true"
+            android:textAllCaps="true"
+            android:textSize="25sp"/>
     </androidx.appcompat.widget.LinearLayoutCompat>
 
     <TextView
@@ -124,7 +127,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             tools:text="Wed Nov 14 11:56 EST 2018"
-        android:enabled="false"/>
+        android:enabled="false"
+        android:visibility="gone"/>
     <Button
         android:id="@+id/resend_fragment_activity"
         android:layout_width="match_parent"

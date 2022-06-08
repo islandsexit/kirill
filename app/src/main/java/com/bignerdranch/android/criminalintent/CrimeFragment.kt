@@ -1,6 +1,7 @@
 package com.bignerdranch.android.criminalintent
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
@@ -11,20 +12,20 @@ import android.os.Bundle
 import android.provider.ContactsContract
 import android.text.Editable
 import android.text.TextWatcher
-import android.text.format.DateFormat
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.bignerdranch.android.criminalintent.api.ApiClient
-import kotlinx.android.synthetic.main.fragment_crime.*
 import java.io.File
-import java.time.LocalDateTime
 import java.util.*
+
 
 private const val TAG = "CrimeFragment"
 private const val ARG_CRIME_ID = "crime_id"
@@ -38,7 +39,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     var isEdit = false
 
     private lateinit var crime: Crime
-    private lateinit var titleField: EditText
+    private lateinit var titleField: EditTextWithDel
     private lateinit var dateButton: Button
     private lateinit var solvedCheckBox: CheckBox
     private lateinit var reportButton: Button
@@ -73,7 +74,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_crime, container, false)
 
-        titleField = view.findViewById(R.id.crime_title) as EditText
+        titleField = view.findViewById(R.id.crime_title) as EditTextWithDel
         dateButton = view.findViewById(R.id.crime_date) as Button
         solvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
         reportButton = view.findViewById(R.id.crime_report) as Button
@@ -88,12 +89,23 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         textFound = view.findViewById(R.id.crimefragment_text_found)
         textSend = view.findViewById(R.id.crimefragment_text_send)
 
-        titleField.setOnClickListener {
-            isEdit = true
-            resend_fragment_activity.visibility = View.VISIBLE
-            resend_fragment_activity.setText("Отправить изменения")
-        }
+        titleField.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+            if(!isEdit) {
+                isEdit = true
+                resend_fragment_activity.visibility = View.VISIBLE
+                resend_fragment_activity.setText("Отправить изменения")
+            }
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager).hideSoftInputFromWindow(
+                    titleField.getWindowToken(),
+                    0
+                )
 
+
+                return@OnKeyListener true
+            }
+            false
+        })
 
 
         resend_fragment_activity = view.findViewById(R.id.resend_fragment_activity) as Button

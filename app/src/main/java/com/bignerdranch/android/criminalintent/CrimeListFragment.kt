@@ -1,5 +1,6 @@
 package com.bignerdranch.android.criminalintent
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -37,6 +38,8 @@ import org.opencv.core.*
 import org.opencv.imgproc.Imgproc
 import org.opencv.objdetect.CascadeClassifier
 import java.io.*
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 
@@ -52,6 +55,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
     private lateinit var mGray:Mat
     public lateinit var cameraBridgeViewBase: myCameraView
     var img64_full: String? = null
+    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
 
     var baseLoaderCallback: BaseLoaderCallback? = null
     private val FACE_RECT_COLOR = Scalar(0.0, 255.0, 0.0, 255.0)
@@ -409,10 +413,11 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
         }
 
+        @SuppressLint("SimpleDateFormat")
         fun bind(crime: Crime) {
             this.crime = crime
             titleTextView.text = this.crime.title
-            dateTextView.text = this.crime.date.toString()
+            dateTextView.text = SimpleDateFormat("dd-MM-yyyy HH:mm").format(this.crime.date)
 //            var path_to_image = "/storage/emulated/0/${crime.img_path}"
             if(File(crime.img_path).exists() && crime.img_path != ""){
                 mybitmap = BitmapFactory.decodeFile(crime.img_path)
