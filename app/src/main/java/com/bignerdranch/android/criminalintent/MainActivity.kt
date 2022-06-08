@@ -10,8 +10,14 @@ import android.provider.Settings
 import android.view.KeyEvent
 import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import com.google.android.material.navigation.NavigationView
 import java.util.*
 
 
@@ -20,13 +26,44 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
     lateinit var test_button: Button
     public val crimeRepository = CrimeRepository.get()
 
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var actionBarToggle: ActionBarDrawerToggle
+    private lateinit var navView: NavigationView
 
 
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        drawerLayout = findViewById(R.id.drawer_layout)
+
+        // Pass the ActionBarToggle action into the drawerListener
+        actionBarToggle = ActionBarDrawerToggle(this, drawerLayout, 0, 0)
+        drawerLayout.addDrawerListener(actionBarToggle)
+
+        // Display the hamburger icon to launch the drawer
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        // Call syncState() on the action bar so it'll automatically change to the back button when the drawer layout is open
+        actionBarToggle.syncState()
+
+
+        // Call findViewById on the NavigationView
+        navView = findViewById(R.id.navigation)
+
+        // Call setNavigationItemSelectedListener on the NavigationView to detect when items are clicked
+//        navView.setNavigationItemSelectedListener { menuItem ->
+//            when (menuItem.itemId) {
+//                R.id.settings -> {
+//                    Toast.makeText(this, "Settings", Toast.LENGTH_SHORT).show()
+//                    true
+//                }
+//                else -> {
+//                    false
+//                }
+//            }
+//
+//    }
 
 
         if (Build.VERSION.SDK_INT >= 30) {
@@ -98,7 +135,24 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
         }
         return super.onKeyDown(keyCode, event)
     }
+    override fun onSupportNavigateUp(): Boolean {
+        if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            this.drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            drawerLayout.openDrawer(navView)
+        }
 
+        return true
+    }
+
+    // override the onBackPressed() function to close the Drawer when the back button is clicked
+    override fun onBackPressed() {
+        if (this.drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            this.drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
+    }
 
     }
 

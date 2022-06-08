@@ -7,9 +7,7 @@
     <string name="new_crime">Фото из медиатеки</string>
     <string name="crime_suspect_text">Выбери получателя</string>
     <string name="crime_report_text">Отправить репорт</string>
-    <string name="crime_report">%1$s!
-        Нарушение в  %2$s. %3$s, и %4$s
-    </string>
+    <string name="crime_report">%1$s!Нарушение в  %2$s. %3$s, и %4$s</string>
     <string name="crime_report_solved">The case is solved</string>
     <string name="crime_report_unsolved">The case is not solved</string>
     <string name="crime_report_no_suspect">there is no suspect.</string>
@@ -20,7 +18,6 @@
     <string name="photo_path_full">Photo_path_full</string>
     <string name="resend">Отправить неотправленные фото</string>
     <string name="resend_btn">Отправить заново</string>
-
     <string name="plate_not_found">Не распознан номер</string>
     <string name="send_error">Ошибка отправки на сервер</string>
     <string name="type_of_photo">Изменить тип фотографирования</string>
