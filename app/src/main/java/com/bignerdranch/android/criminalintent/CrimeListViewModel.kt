@@ -1,6 +1,11 @@
 package com.bignerdranch.android.criminalintent
 
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class CrimeListViewModel : ViewModel() {
 
@@ -19,4 +24,6 @@ class CrimeListViewModel : ViewModel() {
     fun getCrimeFromPosition(position:Int):Crime{
         return crimeRepository.getCrimeFromPosition(position)
     }
+
+
 }

@@ -4,7 +4,7 @@
 
     <item android:id="@+id/plate_selector"
         android:icon="@drawable/ic_cam"
-        android:title="@string/type_of_photo"
+        android:title="Фото"
 
         />
     <item
@@ -12,9 +12,9 @@
         android:icon="@drawable/ic_menu_add"
         android:title="@string/new_crime"
         />
-    <item android:id="@+id/resend_crimes"
-        android:icon="@drawable/ic_upload"
-        android:title="@string/resend"
+    <item android:id="@+id/delete_crimes"
+        android:icon="@drawable/ic_delete_all"
+        android:title="Удалить все записи"
 
         />
 </menu>

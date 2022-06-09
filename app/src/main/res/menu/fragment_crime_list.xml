@@ -6,21 +6,7 @@
         android:title="@string/flash"
         app:showAsAction="ifRoom|withText"
         />
-    <item android:id="@+id/plate_selector"
-        android:icon="@drawable/ic_cam"
-        android:title="@string/type_of_photo"
-        app:showAsAction="ifRoom|withText"
-        />
-    <item
-        android:id="@+id/new_crime"
-        android:icon="@drawable/ic_menu_add"
-        android:title="@string/new_crime"
-        app:showAsAction="ifRoom|withText"/>
-    <item android:id="@+id/resend_crimes"
-        android:icon="@drawable/ic_upload"
-        android:title="@string/resend"
-        app:showAsAction="ifRoom|withText"
-        />
+
 
 
 

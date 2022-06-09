@@ -1,6 +1,7 @@
 package com.bignerdranch.android.criminalintent
 
 import android.annotation.SuppressLint
+import android.app.Dialog
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -16,20 +17,20 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.test.core.app.ActivityScenario.launch
 import com.bignerdranch.android.criminalintent.api.ApiClient
+import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.CameraBridgeViewBase
 import org.opencv.android.LoaderCallbackInterface
@@ -84,6 +85,10 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
     private lateinit var photoButton:ImageButton
 
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var actionBarToggle: ActionBarDrawerToggle
+    private lateinit var navView: NavigationView
+
 
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
     val crimeListViewModel: CrimeListViewModel by lazy {
@@ -122,7 +127,23 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+
+
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
+
+        drawerLayout = view.findViewById(R.id.drawer_layout)
+
+
+        actionBarToggle = ActionBarDrawerToggle(activity, drawerLayout, 0, 0)
+        drawerLayout.addDrawerListener(actionBarToggle)
+
+        actionBarToggle.syncState()
+
+
+
+        // Call findViewById on the NavigationView
+        navView = view.findViewById(R.id.navigation)
 
         crimeRecyclerView =
                 view.findViewById(R.id.crime_recycler_view) as RecyclerView
@@ -243,7 +264,59 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(crimeRecyclerView)
 
+        navView.setNavigationItemSelectedListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.plate_selector -> {
+                    if (!isScaner) {
+                        isScaner = true
+                        menuItem.setIcon(R.drawable.ic_scaner)
+                        menuItem.setTitle("Сканер")
+                        photoButton.visibility = View.GONE
+                    }
+                    else{
+                        isScaner = false
+                        menuItem.setIcon(R.drawable.ic_cam)
+                        menuItem.setTitle("Фото")
+                        photoButton.visibility = View.VISIBLE
+                    }
+                    true
+                }
+                R.id.new_crime -> {
+                    pickPhoto()
+                    true
+                }
 
+                R.id.delete_crimes -> {
+                    try {
+                        val lastCrimeDate = crimeListViewModel.crimeListLiveData.value?.first()?.date
+                        crimeListViewModel.crimeListLiveData.observe(viewLifecycleOwner, Observer<List<Crime>>(){
+                            for(crime in it) {
+                                CoroutineScope(Dispatchers.Default).launch {
+                                    if (crime.date <= lastCrimeDate) {
+                                        val file = File(crime.img_path)
+                                        if (file.exists()) {
+                                            file.delete()
+                                            crimeListViewModel.deleteCrime(crime)
+                                        } else {
+                                            this.cancel()
+                                        }
+                                    }
+                                }
+
+
+                            }})
+                    } catch (e: Exception){
+                        Toast.makeText(requireContext(), "Ничего не нашлось", Toast.LENGTH_SHORT).show()
+                    }
+
+                    true
+                }
+                else -> {
+                    false
+                }
+            }
+
+        }
 
         return view
     }
@@ -271,48 +344,6 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         var count = 0
         return when (item.itemId) {
-            R.id.new_crime -> {
-//                val crime = Crime()
-//                crimeListViewModel.addCrime(crime)
-//                callbacks?.onCrimeSelected(crime.id)
-              pickPhoto()
-
-                true
-            }
-            // todo button for resend
-            R.id.resend_crimes ->{
-                CrimeRepository.get().getUnsendCrimes().observe(this, Observer<List<Crime>>(){
-                    for(crime in it){
-                        lifecycleScope.launch {
-                            ResendCrime(crime)
-                            crime.date = Calendar.getInstance().time
-                            if(crime.send){
-                                count++
-                            }
-                            if(count-1 == it.size){
-                                item.setIcon(R.drawable.ic_uploaded)
-                            }
-                        }
-
-                    }
-                })
-
-                true
-            }
-            R.id.plate_selector ->{
-                if (!isScaner) {
-                    isScaner = true
-                    item.setIcon(R.drawable.ic_scaner)
-                    photoButton.visibility = View.GONE
-                }
-                else{
-                    isScaner = false
-                    item.setIcon(R.drawable.ic_cam)
-                    photoButton.visibility = View.VISIBLE
-                }
-
-                true
-            }
 
             R.id.flash ->{
                 if(flashEnable){
