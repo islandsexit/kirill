@@ -90,7 +90,7 @@
             android:layout_height="wrap_content"
             android:text="@string/crime_title_label"/>
 
-        <com.bignerdranch.android.criminalintent.EditTextWithDel
+        <ru.vigtech.android.vigpark.EditTextWithDel
             android:id="@+id/crime_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
