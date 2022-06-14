@@ -682,6 +682,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         try {
             flashEnable = false
             menu.findItem(R.id.flash).setIcon(R.drawable.ic_flash_off)
+            isScaner = false
         }
         catch (e:Exception){
             //todo onpause crrush fix first launch
