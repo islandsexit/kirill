@@ -109,7 +109,9 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
 //            fos.close()
             val bOut2 = ByteArrayOutputStream()
             var bm = BitmapFactory.decodeFile(mFile2.path)
-            bm = PicturesUtils.getResizedBitmap(bm, 720, 480)
+
+
+
 
 
 //            Log.i("APP_LOG", img64_full.toString())
@@ -123,6 +125,9 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
                 bm.width, bm.height,
                 mat, true
             )
+            bm = Bitmap.createBitmap(bm,0, bm.height/4, bm.width, bm.height-bm.height/4)
+            bm = PicturesUtils.getResizedBitmap(bm, 1024, 768)
+
 
             bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
             img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)

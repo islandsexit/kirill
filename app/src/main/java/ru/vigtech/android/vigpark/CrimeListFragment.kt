@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Matrix
 import android.net.Uri
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -33,11 +32,16 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.opencv.android.BaseLoaderCallback
 import org.opencv.android.CameraBridgeViewBase
+import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame
 import org.opencv.android.LoaderCallbackInterface
 import org.opencv.android.OpenCVLoader
 import org.opencv.core.*
+import org.opencv.dnn.Dnn
+import org.opencv.dnn.Net
 import org.opencv.imgproc.Imgproc
+import org.opencv.imgproc.Imgproc.FONT_HERSHEY_SIMPLEX
 import org.opencv.objdetect.CascadeClassifier
+import org.opencv.utils.Converters
 import ru.vigtech.android.vigpark.api.ApiClient
 import java.io.*
 import java.text.SimpleDateFormat
@@ -89,6 +93,11 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var actionBarToggle: ActionBarDrawerToggle
     private lateinit var navView: NavigationView
+
+    //Network dnn
+    private lateinit var proto: String
+    private lateinit var weights: String
+    private lateinit var net: Net
 
 
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
@@ -544,7 +553,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
     override fun onCameraViewStarted(width: Int, height: Int) {
         mGray = Mat()
-        mRgba = Mat()    }
+        mRgba = Mat() }
 
     override fun onCameraViewStopped() {
         mGray.release()
@@ -647,7 +656,8 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
     }
 
 
-    private fun checkOpenCV(context: Context?) {
+
+private fun checkOpenCV(context: Context?) {
         if (OpenCVLoader.initDebug()) {
             //shortMsg(context, OPENCV_SUCCESSFUL)
             cameraBridgeViewBase.let {
@@ -713,18 +723,7 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
         if(File(crime.img_path_full).exists() && crime.img_path_full != "") {
             val bOut2 = ByteArrayOutputStream()
             var bm = BitmapFactory.decodeFile(crime.img_path_full)
-            bm = PicturesUtils.getResizedBitmap(bm, 720, 480)
-
-
-            val mat = Matrix()
-            mat.postRotate(90f)
-            bm = Bitmap.createBitmap(
-                bm, 0, 0,
-                bm.width, bm.height,
-                mat, true
-            )
-
-            bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
+            bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut2)
             img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
 
             ApiClient.POST_img64(img64_full.toString(), "i", crime)
@@ -733,7 +732,8 @@ class CrimeListFragment : Fragment(), CameraBridgeViewBase.CvCameraViewListener2
 
     }
 
-    fun getCmaerabrridge() = cameraBridgeViewBase
 
 
 }
+
+

@@ -1,8 +1,6 @@
 package ru.vigtech.android.vigpark.api
 
 import android.util.Log
-import ru.vigtech.android.vigpark.Crime
-import ru.vigtech.android.vigpark.CrimeRepository
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -11,12 +9,15 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import ru.vigtech.android.vigpark.Crime
+import ru.vigtech.android.vigpark.CrimeRepository
+import java.util.concurrent.TimeUnit
 
 
 object ApiClient {
 
 
-        val baseUrl = "http://192.168.48.174:8080/"
+        var baseUrl = "http://95.182.74.37:1234/"
 
         fun getRetroInstance(): Retrofit {
 
@@ -34,9 +35,15 @@ object ApiClient {
 
 
     fun POST_img64(img64_full: String, URL: String?, img_path: String, img_plate_path:String) {
+        val okHttpClient: OkHttpClient = OkHttpClient.Builder()
+            .connectTimeout(1, TimeUnit.MINUTES)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
+            .build()
         val gsonBuilder = GsonBuilder()
         val retrofit = Retrofit.Builder()
             .baseUrl(baseUrl)
+            .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gsonBuilder.create()))
             .build()
         val post_api: PostInterface = retrofit.create(PostInterface::class.java)
@@ -121,7 +128,8 @@ object ApiClient {
 
             override fun onFailure(call: Call<PostPhoto?>, t: Throwable) {
                 Log.e("POST", "onFailure", t)
-
+                crime.send = false
+                CrimeRepository.get().updateCrime(crime)
 
             }
         })

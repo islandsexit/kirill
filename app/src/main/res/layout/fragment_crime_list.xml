@@ -15,7 +15,7 @@
 
     <ru.vigtech.android.vigpark.myCameraView
         android:id="@+id/myCameraView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="720px"
 
         app:layout_constraintEnd_toEndOf="parent"
