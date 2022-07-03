@@ -1,0 +1,170 @@
+[
+  {
+    "level_": 0,
+    "message_": "Start JSON generation. Platform version: 29 min SDK version: x86",
+    "file_": "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "release|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 2130983219
+  },
+  {
+    "level_": 0,
+    "message_": "rebuilding JSON X:\\Projects\\Park\\opencv\\.cxx\\RelWithDebInfo\\6av1g316\\x86\\android_gradle_build.json due to:",
+    "file_": "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "release|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": -367249944
+  },
+  {
+    "level_": 0,
+    "message_": "- expected json X:\\Projects\\Park\\opencv\\.cxx\\RelWithDebInfo\\6av1g316\\x86\\android_gradle_build.json file is not present, will remove stale json folder",
+    "file_": "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "release|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": -1055959442
+  },
+  {
+    "level_": 0,
+    "message_": "- missing previous command file X:\\Projects\\Park\\opencv\\.cxx\\RelWithDebInfo\\6av1g316\\x86\\metadata_generation_command.txt, will remove stale json folder",
+    "file_": "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "release|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 265073900
+  },
+  {
+    "level_": 0,
+    "message_": "- command changed from previous, will remove stale json folder",
+    "file_": "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "release|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 1564531575
+  },
+  {
+    "level_": 0,
+    "message_": "created folder \u0027X:\\Projects\\Park\\opencv\\.cxx\\RelWithDebInfo\\6av1g316\\x86\u0027",
+    "file_": "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "release|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 600826398
+  },
+  {
+    "level_": 0,
+    "message_": "executing cmake Executable : X:\\SDK\\cmake\\3.18.1\\bin\\cmake.exe\narguments : \n-HX:\\Projects\\Park\\opencv\\libcxx_helper\n-DCMAKE_SYSTEM_NAME\u003dAndroid\n-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON\n-DCMAKE_SYSTEM_VERSION\u003d29\n-DANDROID_PLATFORM\u003dandroid-29\n-DANDROID_ABI\u003dx86\n-DCMAKE_ANDROID_ARCH_ABI\u003dx86\n-DANDROID_NDK\u003dX:\\SDK\\ndk\\21.4.7075529\n-DCMAKE_ANDROID_NDK\u003dX:\\SDK\\ndk\\21.4.7075529\n-DCMAKE_TOOLCHAIN_FILE\u003dX:\\SDK\\ndk\\21.4.7075529\\build\\cmake\\android.toolchain.cmake\n-DCMAKE_MAKE_PROGRAM\u003dX:\\SDK\\cmake\\3.18.1\\bin\\ninja.exe\n-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003dX:\\Projects\\Park\\opencv\\build\\intermediates\\cxx\\RelWithDebInfo\\6av1g316\\obj\\x86\n-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003dX:\\Projects\\Park\\opencv\\build\\intermediates\\cxx\\RelWithDebInfo\\6av1g316\\obj\\x86\n-DCMAKE_BUILD_TYPE\u003dRelWithDebInfo\n-BX:\\Projects\\Park\\opencv\\.cxx\\RelWithDebInfo\\6av1g316\\x86\n-GNinja\n-DANDROID_STL\u003dc++_shared\njvmArgs : \n\n",
+    "file_": "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "release|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 1585556810
+  },
+  {
+    "level_": 0,
+    "message_": "Executable : X:\\SDK\\cmake\\3.18.1\\bin\\cmake.exe\narguments : \n-HX:\\Projects\\Park\\opencv\\libcxx_helper\n-DCMAKE_SYSTEM_NAME\u003dAndroid\n-DCMAKE_EXPORT_COMPILE_COMMANDS\u003dON\n-DCMAKE_SYSTEM_VERSION\u003d29\n-DANDROID_PLATFORM\u003dandroid-29\n-DANDROID_ABI\u003dx86\n-DCMAKE_ANDROID_ARCH_ABI\u003dx86\n-DANDROID_NDK\u003dX:\\SDK\\ndk\\21.4.7075529\n-DCMAKE_ANDROID_NDK\u003dX:\\SDK\\ndk\\21.4.7075529\n-DCMAKE_TOOLCHAIN_FILE\u003dX:\\SDK\\ndk\\21.4.7075529\\build\\cmake\\android.toolchain.cmake\n-DCMAKE_MAKE_PROGRAM\u003dX:\\SDK\\cmake\\3.18.1\\bin\\ninja.exe\n-DCMAKE_LIBRARY_OUTPUT_DIRECTORY\u003dX:\\Projects\\Park\\opencv\\build\\intermediates\\cxx\\RelWithDebInfo\\6av1g316\\obj\\x86\n-DCMAKE_RUNTIME_OUTPUT_DIRECTORY\u003dX:\\Projects\\Park\\opencv\\build\\intermediates\\cxx\\RelWithDebInfo\\6av1g316\\obj\\x86\n-DCMAKE_BUILD_TYPE\u003dRelWithDebInfo\n-BX:\\Projects\\Park\\opencv\\.cxx\\RelWithDebInfo\\6av1g316\\x86\n-GNinja\n-DANDROID_STL\u003dc++_shared\njvmArgs : \n\n",
+    "file_": "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "release|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 487585161
+  },
+  {
+    "level_": 0,
+    "message_": "Exiting generation of X:\\Projects\\Park\\opencv\\.cxx\\RelWithDebInfo\\6av1g316\\x86\\compile_commands.json.bin normally",
+    "file_": "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "release|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 1365934036
+  },
+  {
+    "level_": 0,
+    "message_": "done executing cmake",
+    "file_": "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "release|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 1252185324
+  },
+  {
+    "level_": 0,
+    "message_": "write command file X:\\Projects\\Park\\opencv\\.cxx\\RelWithDebInfo\\6av1g316\\x86\\metadata_generation_command.txt",
+    "file_": "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "release|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": 1458886642
+  },
+  {
+    "level_": 0,
+    "message_": "JSON generation completed without problems",
+    "file_": "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt",
+    "tag_": "release|x86",
+    "diagnosticCode_": 0,
+    "memoizedIsInitialized": 1,
+    "unknownFields": {
+      "fields": {},
+      "fieldsDescending": {}
+    },
+    "memoizedSize": -1,
+    "memoizedHashCode": -1104708888
+  }
+]

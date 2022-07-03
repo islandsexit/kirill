@@ -53,11 +53,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
 
-            android:id="@+id/crime_solved" android:layout_marginTop="8dp"
+            android:id="@+id/crime_solved"
+            android:layout_marginTop="4dp"
             app:layout_constraintTop_toTopOf="@+id/crime_title"
-            android:layout_marginBottom="8dp"
+            android:layout_marginBottom="4dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginEnd="8dp"/>
+            android:layout_marginEnd="4dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

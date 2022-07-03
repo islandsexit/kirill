@@ -1,8 +1,10 @@
 package ru.vigtech.android.vigpark
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.net.Uri
 import android.util.DisplayMetrics
 import androidx.camera.core.*
+import androidx.camera.core.ImageCapture.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -32,6 +34,9 @@ class CameraxHelper(
 
 
 ) {
+    var cameraControl: CameraControl? = null
+
+    var cameraInfo: CameraInfo? = null
     private val context by lazy {
         when (caller) {
             is Activity -> caller
@@ -67,10 +72,11 @@ class CameraxHelper(
             .build()
             .apply { imageAnalizer?.let { setAnalyzer(executor, imageAnalizer) } }
 
-    private fun createImageCapture() =
+    @SuppressLint("RestrictedApi")
+    fun createImageCapture() =
         (builderImageCapture ?: ImageCapture.Builder()
             .setTargetAspectRatio(aspectRatio()))
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .build()
 
     fun changeCamera() {
@@ -96,19 +102,28 @@ class CameraxHelper(
                 imageCapture = createImageCapture()
                 imageAnalysis = createImageAnalysis()
 
+
                 cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(
+               val camera = cameraProvider.bindToLifecycle(
                     caller as LifecycleOwner,
                     cameraSelector,
                     imagePreview,
                     imageCapture,
                     imageAnalysis
                 )
+
+                cameraControl = camera.cameraControl
+                cameraInfo = camera.cameraInfo
+
+
+
             } catch (exc: Exception) {
                 onError?.invoke(exc)
             }
 
+
         }, ContextCompat.getMainExecutor(context))
+
     }
 
     private fun aspectRatio(): Int {

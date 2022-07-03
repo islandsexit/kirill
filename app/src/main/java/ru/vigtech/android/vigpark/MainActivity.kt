@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
                 val fm = supportFragmentManager
                 val fragment: CrimeListFragment? =
                     fm.findFragmentById(R.id.fragment_container) as CrimeListFragment?
-                //todo camera take photo in main activity by up button
+                fragment?.cameraxHelper?.takePicture()
                 return true
             }
             KeyEvent.KEYCODE_VOLUME_DOWN -> {

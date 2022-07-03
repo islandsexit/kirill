@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Bundle
 import android.util.Base64
@@ -19,20 +20,23 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.TorchState
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import ru.vigtech.android.vigpark.api.ApiClient
-import ru.vigtech.android.vigpark.database.CrimeDao
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -43,30 +47,27 @@ private const val TAG = "CrimeListFragment"
 class CrimeListFragment : Fragment(){
 
 
-    private lateinit var cameraxHelper: CameraxHelper
+    lateinit var cameraxHelper: CameraxHelper
 
 
     var img64_full: String? = null
-
+    private lateinit var camera: androidx.camera.core.Camera
 
     private var isScaner = false
-    private var flashEnable = false
+    private lateinit var cameraManager: CameraManager
     private lateinit var menu: Menu
 
     lateinit var apiClient: ApiClient
 
 
     private lateinit var crimeRecyclerView: RecyclerView
-    private lateinit var img_file: File
     private lateinit var mybitmap: Bitmap
 
     private lateinit var photoButton:ImageButton
 
-    private var flashMode = ImageCapture.FLASH_MODE_ON
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var actionBarToggle: ActionBarDrawerToggle
     private lateinit var navView: NavigationView
-
 
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
     val crimeListViewModel: CrimeListViewModel by lazy {
@@ -106,8 +107,11 @@ class CrimeListFragment : Fragment(){
         savedInstanceState: Bundle?
     ): View? {
 
-
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
+
+
+
+
         cameraxHelper = CameraxHelper(
             caller = this,
             previewView =  view.findViewById(R.id.previewView),
@@ -270,6 +274,43 @@ class CrimeListFragment : Fragment(){
 
         }
 
+        val bottomSheetBehaviour = BottomSheetBehavior.from(crimeRecyclerView);
+        bottomSheetBehaviour.setBottomSheetCallback(object : BottomSheetCallback() {
+            override fun onStateChanged(view: View, i: Int) {
+            }
+            override fun onSlide(view: View, v: Float) {
+                if (v >= 0) {
+
+
+                }
+            }
+        })
+
+        drawerLayout.addDrawerListener(object : DrawerListener {
+            /**
+             * Called when a drawer's position changes.
+             *
+             * @param slideOffset The new offset of this drawer within its range, from 0-1
+             * Example when you slide drawer from left to right, slideOffset will increase from 0 - 1 (0 when drawer closed and 1 when drawer display full)
+             */
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                crimeRecyclerView.visibility = View.GONE
+            }
+            override fun onDrawerOpened(drawerView: View) {
+                crimeRecyclerView.visibility = View.GONE
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                crimeRecyclerView.visibility = View.VISIBLE
+            }
+
+            /**
+             * Called when the drawer motion state changes. The new state will
+             * be one of [.STATE_IDLE], [.STATE_DRAGGING] or [.STATE_SETTLING].
+             */
+            override fun onDrawerStateChanged(newState: Int) {}
+        })
+
         return view
     }
 
@@ -288,29 +329,16 @@ class CrimeListFragment : Fragment(){
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        var count = 0
         return when (item.itemId) {
 
             R.id.flash ->{
-                when (flashMode) {
-                    ImageCapture.FLASH_MODE_OFF ->{
-                        item.setIcon(R.drawable.ic_flash_on)
-                    flashMode = ImageCapture.FLASH_MODE_ON}
-                            ImageCapture.FLASH_MODE_ON ->{
-                    flashMode = ImageCapture.FLASH_MODE_AUTO
-                        item.setIcon(R.drawable.ic_flash_on)}
-                    ImageCapture.FLASH_MODE_AUTO -> {
-                        flashMode = ImageCapture.FLASH_MODE_OFF
-                        item.setIcon(R.drawable.ic_flash_off)
-                    }
+                if (cameraxHelper.cameraInfo?.torchState?.value == TorchState.ON) {
+                    cameraxHelper.cameraControl?.enableTorch(false)
+                    item.setIcon(R.drawable.ic_flash_off)
+                } else {
+                    cameraxHelper.cameraControl?.enableTorch(true)
+                    item.setIcon(R.drawable.ic_flash_on)
                 }
-                // Re-bind use cases to include changes
-                cameraxHelper.builderImageCapture =  ImageCapture.Builder()
-                    .setTargetResolution(android.util.Size(1024,768))
-                    .setFlashMode(flashMode)
-
-
-
                 true
             }
 
@@ -323,31 +351,29 @@ class CrimeListFragment : Fragment(){
             //todo image picker
 
             Log.i("Image_picker", uri.path.toString())
-            if(it != null) {
-                try {
-                    var path_to_image = context?.filesDir
-                    val inputStream: InputStream? =
-                        context?.getContentResolver()?.openInputStream(uri)
-                    val bOut2 = ByteArrayOutputStream()
-                    var bm = BitmapFactory.decodeStream(inputStream)
-                    bm = PicturesUtils.getResizedBitmap(bm, 720, 480)
-                    bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
-                    img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
-                    val mFile3 = File(
-                        path_to_image,
-                        UUID.randomUUID().toString() + "_" + ".jpg"
-                    )
-                    var fos2: FileOutputStream? = null
-                    fos2 = FileOutputStream(mFile3)
-                    Log.i("APP_LOG", mFile3.absolutePath)
-                    bm.compress(Bitmap.CompressFormat.JPEG, 100, fos2)
-                    val bOut = ByteArrayOutputStream()
-                    bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut)
-                    val img64 = Base64.encodeToString(bOut.toByteArray(), Base64.DEFAULT)
-                    ApiClient.POST_img64(img64,img_path =  mFile3.path, img_plate_path = "None")
-                } catch (e: IOException) {
-                    Log.e("APP_LOG", "Exception in photoCallback", e)
-                }
+            try {
+                var path_to_image = context?.filesDir
+                val inputStream: InputStream? =
+                    context?.getContentResolver()?.openInputStream(uri)
+                val bOut2 = ByteArrayOutputStream()
+                var bm = BitmapFactory.decodeStream(inputStream)
+                bm = PicturesUtils.getResizedBitmap(bm, 720, 480)
+                bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
+                img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
+                val mFile3 = File(
+                    path_to_image,
+                    UUID.randomUUID().toString() + "_" + ".jpg"
+                )
+                var fos2: FileOutputStream? = null
+                fos2 = FileOutputStream(mFile3)
+                Log.i("APP_LOG", mFile3.absolutePath)
+                bm.compress(Bitmap.CompressFormat.JPEG, 100, fos2)
+                val bOut = ByteArrayOutputStream()
+                bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut)
+                val img64 = Base64.encodeToString(bOut.toByteArray(), Base64.DEFAULT)
+                ApiClient.POST_img64(img64,img_path =  mFile3.path, img_plate_path = "None")
+            } catch (e: IOException) {
+                Log.e("APP_LOG", "Exception in photoCallback", e)
             }
 
         }
@@ -513,6 +539,26 @@ class CrimeListFragment : Fragment(){
     }
 
 
+
+    private fun flash(camera: androidx.camera.core.Camera, item: MenuItem){
+        camera.apply {
+            if (cameraInfo.hasFlashUnit()) {
+                item.isVisible = true
+                    cameraControl.enableTorch(cameraInfo.torchState.value == TorchState.OFF)
+
+            } else {
+                item.isVisible = false
+            }
+
+            cameraInfo.torchState.observe(viewLifecycleOwner) { torchState ->
+                if (torchState == TorchState.OFF) {
+                    item.setIcon(R.drawable.ic_flash_off)
+                } else {
+                    item.setIcon(R.drawable.ic_flash_on)
+                }
+            }
+        }
+    }
 
 }
 

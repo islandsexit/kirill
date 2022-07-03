@@ -1,0 +1,27 @@
+{
+  "buildFiles": [
+    "X:\\Projects\\Park\\opencv\\libcxx_helper\\CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "X:\\SDK\\cmake\\3.18.1\\bin\\ninja.exe",
+      "-C",
+      "X:\\Projects\\Park\\opencv\\.cxx\\RelWithDebInfo\\6av1g316\\x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "X:\\SDK\\cmake\\3.18.1\\bin\\ninja.exe",
+    "-C",
+    "X:\\Projects\\Park\\opencv\\.cxx\\RelWithDebInfo\\6av1g316\\x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "opencv_jni_shared::@6890427a1f51a3e7e1df": {
+      "artifactName": "opencv_jni_shared",
+      "abi": "x86",
+      "output": "X:\\Projects\\Park\\opencv\\.cxx\\RelWithDebInfo\\6av1g316\\x86\\libopencv_jni_shared.a",
+      "runtimeFiles": []
+    }
+  }
+}
