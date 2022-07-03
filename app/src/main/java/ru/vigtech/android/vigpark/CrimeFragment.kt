@@ -209,7 +209,8 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
            val img_64 = PicturesUtils.getImg_64(crime)
             if(img_64 != ""){
                 if(!isEdit) {
-                    ApiClient.POST_img64(img_64.toString(), "i", crime)
+                    ApiClient.POST_img64(img_64.toString(), crime)
+                    ApiClient.POST_img64(img_64.toString(), crime)
 
                 }else{
                     crime.title = titleField.text.toString()

@@ -13,14 +13,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <ru.vigtech.android.vigpark.myCameraView
-        android:id="@+id/myCameraView"
-        android:layout_width="wrap_content"
-        android:layout_height="720px"
+    <androidx.camera.view.PreviewView
+        android:id="@+id/previewView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="10" />
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
+    <ru.vigtech.android.vigpark.myCameraView
+    android:id="@+id/myCameraView"
+    android:layout_width="wrap_content"
+    android:layout_height="10px"
+
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
 
     <ImageButton
         android:id="@+id/camera_button"

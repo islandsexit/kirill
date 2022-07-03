@@ -10,36 +10,6 @@ import java.io.File
 object PicturesUtils {
 
 
-    fun getScaledBitmap(path: String, destWidth:Int, destHeight:Int): Bitmap {
-
-        var options = BitmapFactory.Options()
-        options.inJustDecodeBounds = true
-        BitmapFactory.decodeFile(path, options)
-
-        val srcWidth = options.outWidth.toFloat()
-        val srcHeight = options.outHeight.toFloat()
-
-        var inSampleSize = 1
-        if ( srcHeight> destHeight || srcWidth > destWidth){
-            val heightScale = srcHeight /destHeight
-            val widthScale = srcWidth / destWidth
-
-            val sampleScale = if (heightScale > widthScale){
-                heightScale
-            }
-            else{
-                widthScale
-            }
-            inSampleSize = Math.round(sampleScale)
-
-        }
-
-        options = BitmapFactory.Options()
-        options.inSampleSize = inSampleSize
-
-        return BitmapFactory.decodeFile(path, options)
-    }
-
 
     fun getResizedBitmap(bm: Bitmap, newWidth: Int, newHeight: Int): Bitmap {
         val width = bm.width
@@ -64,5 +34,13 @@ object PicturesUtils {
             return img64_full
         }
         return ""
+    }
+
+    fun img64FromFile(img_path:String):String{
+        val bOut2 = ByteArrayOutputStream()
+        var bm = BitmapFactory.decodeFile(img_path)
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut2)
+        var img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
+        return img64_full.toString()
     }
 }

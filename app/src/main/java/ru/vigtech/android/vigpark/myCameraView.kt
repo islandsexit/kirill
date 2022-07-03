@@ -113,11 +113,6 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
 
 
 
-
-//            Log.i("APP_LOG", img64_full.toString())
-
-
-
             val mat = Matrix()
             mat.postRotate(90f)
             bm = Bitmap.createBitmap(
@@ -131,23 +126,6 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
 
             bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
             img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
-//            Log.i(
-//                "APP_LOG", """width:${bm.width}
-//                         height:${bm.height}
-//                         x:${face_array[0].x}
-//                          y:${face_array[0].y}
-//                         width:${face_array[0].width}
-//                         height:${face_array[0].height}"""
-//            )
-//            if(face_array.isNullOrEmpty()) {
-//                bm = Bitmap.createBitmap(
-//                    bm,
-//                    face_array[0].x,
-//                    face_array[0].y,
-//                    face_array[0].width,
-//                    face_array[0].height
-//                )
-//            }
             val mFile3 = File(
                 path_to_image,
                 UUID.randomUUID().toString() + "_" + ".jpg"
@@ -161,8 +139,7 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
             val bOut = ByteArrayOutputStream()
             bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut)
             img64 = Base64.encodeToString(bOut.toByteArray(), Base64.DEFAULT)
-            ApiClient.POST_img64(img64_full.toString(), "http://192.168.48.174:8080/",img_path =  mFile3.path, img_plate_path = mFile2.path)
-//            CrimeRepository.get().addCrime(Crime(title = "test", img_path = mFile3.path, img_path_full = mFile2.path))
+            ApiClient.POST_img64(img64_full.toString(),img_path =  mFile3.path, img_plate_path = mFile2.path)
         } catch (e: IOException) {
             Log.e("APP_LOG", "Exception in photoCallback", e)
         }
@@ -172,7 +149,6 @@ class myCameraView(context: Context?, attrs: AttributeSet?) :
 
     companion object {
         private const val TAG = "myCameraView"
-        private lateinit var face_array: Array<Rect>
     }
 }
 

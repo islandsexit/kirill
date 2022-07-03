@@ -11,6 +11,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import ru.vigtech.android.vigpark.api.ApiClient
 import java.util.*
 
 
@@ -23,9 +24,11 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
 
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
 
 
         // Call setNavigationItemSelectedListener on the NavigationView to detect when items are clicked
@@ -77,6 +80,7 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
             .commit()
     }
 
+
     fun add_crime(view: View){
         crimeRepository.addCrime(Crime())
     }
@@ -99,7 +103,7 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
                 val fm = supportFragmentManager
                 val fragment: CrimeListFragment? =
                     fm.findFragmentById(R.id.fragment_container) as CrimeListFragment?
-                fragment?.cameraBridgeViewBase?.takePicture(UUID.randomUUID().toString())
+                //todo camera take photo in main activity by up button
                 return true
             }
             KeyEvent.KEYCODE_VOLUME_DOWN -> {
