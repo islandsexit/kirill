@@ -1,12 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-
-
-    <item android:id="@+id/plate_selector"
-        android:icon="@drawable/ic_cam"
-        android:title="Фото"
-
-        />
     <item
         android:id="@+id/new_crime"
         android:icon="@drawable/ic_menu_add"
@@ -15,6 +8,12 @@
     <item android:id="@+id/delete_crimes"
         android:icon="@drawable/ic_delete_all"
         android:title="Удалить все записи"
+
+        />
+
+    <item android:id="@+id/ip_configuration"
+        android:icon="@drawable/ic_ip_configuration"
+        android:title="@string/ip_сщташпгкфешщт"
 
         />
 </menu>

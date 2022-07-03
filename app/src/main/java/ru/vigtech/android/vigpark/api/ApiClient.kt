@@ -1,9 +1,11 @@
 package ru.vigtech.android.vigpark.api
 
+import android.content.SharedPreferences
 import android.util.Log
+import androidx.preference.PreferenceManager
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.currentCoroutineContext
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -12,16 +14,18 @@ import retrofit2.converter.gson.GsonConverterFactory
 import ru.vigtech.android.vigpark.Crime
 import ru.vigtech.android.vigpark.CrimeRepository
 import java.util.concurrent.TimeUnit
+import kotlin.coroutines.coroutineContext
 
 
 object ApiClient {
     var baseUrl = "http://95.182.74.37:1234/"
-    val retrofit: Retrofit = getRetroInstance()
+    var retrofit: Retrofit = getRetroInstance(baseUrl)
 
 
 
 
-        private fun getRetroInstance(): Retrofit {
+
+        private fun getRetroInstance(baseUrl: String): Retrofit {
             val okHttpClient: OkHttpClient = OkHttpClient.Builder()
                 .connectTimeout(1, TimeUnit.MINUTES)
                 .readTimeout(30, TimeUnit.SECONDS)
@@ -35,6 +39,10 @@ object ApiClient {
                 .addConverterFactory(GsonConverterFactory.create(gsonBuilder.create()))
                 .build()
         }
+
+    fun reBuildRetrofit(ip: String){
+        retrofit = getRetroInstance(ip)
+    }
 
 
 

@@ -3,18 +3,17 @@ package ru.vigtech.android.vigpark
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
+import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.util.Base64
 import android.util.Log
 import android.view.*
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -26,6 +25,7 @@ import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -51,13 +51,9 @@ class CrimeListFragment : Fragment(){
 
 
     var img64_full: String? = null
-    private lateinit var camera: androidx.camera.core.Camera
 
-    private var isScaner = false
-    private lateinit var cameraManager: CameraManager
     private lateinit var menu: Menu
 
-    lateinit var apiClient: ApiClient
 
 
     private lateinit var crimeRecyclerView: RecyclerView
@@ -204,21 +200,39 @@ class CrimeListFragment : Fragment(){
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.plate_selector -> {
-                    if (!isScaner) {
-                        isScaner = true
-                        menuItem.setIcon(R.drawable.ic_scaner)
-                        menuItem.setTitle("Сканер")
-                        photoButton.visibility = View.GONE
+                R.id.ip_configuration ->{
+                    val alert = AlertDialog.Builder(requireContext())
+                    val edittext = EditText(requireContext())
+                    edittext.text = SpannableStringBuilder(getIpFromShared());
+                    alert.setMessage(R.string.ip_сщташпгкфешщт)
+                    alert.setTitle("Сервер")
+
+                    alert.setView(edittext)
+
+                    alert.setPositiveButton(
+                        "Готово"
+                    ) { dialog, whichButton -> //What ever you want to do with the value
+                        val ip = edittext.text.toString()
+                        val preferences: SharedPreferences =
+                            PreferenceManager.getDefaultSharedPreferences(requireContext())
+                        val editor = preferences.edit()
+                        editor.putString("ip", ip)
+                        editor.apply()
+                        ApiClient.reBuildRetrofit(ip)
                     }
-                    else{
-                        isScaner = false
-                        menuItem.setIcon(R.drawable.ic_cam)
-                        menuItem.setTitle("Фото")
-                        photoButton.visibility = View.VISIBLE//todo scaner
+
+                    alert.setNegativeButton(
+                        "Отмена"
+                    ) { dialog, whichButton ->
+                        // what ever you want to do with No option.
                     }
+
+                    alert.show()
+
+
                     true
                 }
+
                 R.id.new_crime -> {
                     pickPhoto()
                     true
@@ -274,17 +288,6 @@ class CrimeListFragment : Fragment(){
 
         }
 
-        val bottomSheetBehaviour = BottomSheetBehavior.from(crimeRecyclerView);
-        bottomSheetBehaviour.setBottomSheetCallback(object : BottomSheetCallback() {
-            override fun onStateChanged(view: View, i: Int) {
-            }
-            override fun onSlide(view: View, v: Float) {
-                if (v >= 0) {
-
-
-                }
-            }
-        })
 
         drawerLayout.addDrawerListener(object : DrawerListener {
             /**
@@ -310,6 +313,8 @@ class CrimeListFragment : Fragment(){
              */
             override fun onDrawerStateChanged(newState: Int) {}
         })
+
+        getIpFromShared()?.let { ApiClient.reBuildRetrofit(it) }
 
         return view
     }
@@ -557,6 +562,18 @@ class CrimeListFragment : Fragment(){
                     item.setIcon(R.drawable.ic_flash_on)
                 }
             }
+        }
+    }
+
+
+    private fun getIpFromShared(): String? {
+        val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        var url = preferences.getString("ip", "")
+        if (!url.equals("", ignoreCase = true)) {
+            return url
+        }
+        else{
+            return "http://95.182.74.37:1234/"
         }
     }
 
