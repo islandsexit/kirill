@@ -76,6 +76,7 @@ class CameraxHelper(
     fun createImageCapture() =
         (builderImageCapture ?: ImageCapture.Builder()
             .setTargetAspectRatio(aspectRatio()))
+            .setTargetResolution(android.util.Size(1024,768))
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .build()
 

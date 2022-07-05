@@ -311,7 +311,12 @@ class CrimeListFragment : Fragment(){
              * Called when the drawer motion state changes. The new state will
              * be one of [.STATE_IDLE], [.STATE_DRAGGING] or [.STATE_SETTLING].
              */
-            override fun onDrawerStateChanged(newState: Int) {}
+            override fun onDrawerStateChanged(newState: Int) {
+                if (newState == 1){
+                    crimeRecyclerView.visibility = View.VISIBLE
+                }
+                Log.i("OFFSET", newState.toString())
+            }
         })
 
         getIpFromShared()?.let { ApiClient.reBuildRetrofit(it) }
