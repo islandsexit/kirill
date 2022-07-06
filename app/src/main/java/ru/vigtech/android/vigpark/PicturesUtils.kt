@@ -1,11 +1,14 @@
 package ru.vigtech.android.vigpark
 
+import android.R.attr.bitmap
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.util.Base64
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
+
 
 object PicturesUtils {
 
@@ -29,6 +32,11 @@ object PicturesUtils {
         if(File(crime.img_path).exists() && crime.img_path != "") {
             val bOut2 = ByteArrayOutputStream()
             var bm = BitmapFactory.decodeFile(crime.img_path)
+            if (bm.height != 768){
+                bm = Bitmap.createScaledBitmap(bm, 1024, 768, false)
+                val out = FileOutputStream(crime.img_path)
+                bm.compress(Bitmap.CompressFormat.JPEG, 100, out)
+            }
             bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut2)
             var img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
             return img64_full
@@ -39,6 +47,11 @@ object PicturesUtils {
     fun img64FromFile(img_path:String):String{
         val bOut2 = ByteArrayOutputStream()
         var bm = BitmapFactory.decodeFile(img_path)
+        if (bm.height != 768){
+            bm = Bitmap.createScaledBitmap(bm, 1024, 768, false)
+            val out = FileOutputStream(img_path)
+            bm.compress(Bitmap.CompressFormat.JPEG, 100, out)
+        }
         bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut2)
         var img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
         return img64_full.toString()

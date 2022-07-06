@@ -6,7 +6,6 @@ import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.hardware.camera2.CameraManager
 import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableStringBuilder
@@ -15,11 +14,13 @@ import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
+import androidx.core.view.MenuItemCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.fragment.app.Fragment
@@ -29,8 +30,6 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,9 +60,13 @@ class CrimeListFragment : Fragment(){
 
     private lateinit var photoButton:ImageButton
 
+
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var actionBarToggle: ActionBarDrawerToggle
     private lateinit var navView: NavigationView
+    var zone: Int = 0
+
+
 
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
     val crimeListViewModel: CrimeListViewModel by lazy {
@@ -102,7 +105,12 @@ class CrimeListFragment : Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
+//        try {
+//            getIpFromShared()?.let { ApiClient.reBuildRetrofit(it) }
+//        }
+//        catch (e: Exception){
+//            Log.e("Retrofit", "No rerofit")
+//        }
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
 
 
@@ -166,9 +174,10 @@ class CrimeListFragment : Fragment(){
         //todo свайп
         val swipeHandler = object : SwipeToDeleteCallback(this.context) {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                crimeRecyclerView.adapter?.notifyItemRemoved(viewHolder.adapterPosition)
+                crimeRecyclerView.adapter?.notifyItemRemoved(viewHolder.position)
                 CoroutineScope(Dispatchers.Default).launch {
-                   val crime = crimeListViewModel.getCrimeFromPosition(viewHolder.adapterPosition)
+                   val crime = crimeListViewModel.getCrimeFromPosition(viewHolder.position)
+
                     CrimeRepository.get().deleteCrime(crime)
                     //notifyItemRemoved(position) execute only once
                     //crimeListViewModel.deleteCrime(crime)
@@ -177,7 +186,7 @@ class CrimeListFragment : Fragment(){
                     if (file.exists()) {
                         file.delete()
                     }
-                    Log.i("AAAAAAAAAAPPPPPP_TAAAGGG", "Deleting ${crime.title}")
+                    Log.i("AAAAAAAAAAPPPPPP_TAAAGGG", "Deleting ${viewHolder.position}")
                 }
             }
         }
@@ -297,7 +306,7 @@ class CrimeListFragment : Fragment(){
              * Example when you slide drawer from left to right, slideOffset will increase from 0 - 1 (0 when drawer closed and 1 when drawer display full)
              */
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                crimeRecyclerView.visibility = View.GONE
+//                crimeRecyclerView.visibility = View.GONE
             }
             override fun onDrawerOpened(drawerView: View) {
                 crimeRecyclerView.visibility = View.GONE
@@ -321,6 +330,8 @@ class CrimeListFragment : Fragment(){
 
         getIpFromShared()?.let { ApiClient.reBuildRetrofit(it) }
 
+
+
         return view
     }
 
@@ -335,10 +346,12 @@ class CrimeListFragment : Fragment(){
         super.onCreateOptionsMenu(menu, inflater)
         this.menu = menu
         inflater.inflate(R.menu.fragment_crime_list, menu)
+        menu.findItem(R.id.zone_1).setChecked(true)
     }
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        Log.i("MENU", "${item}")
         return when (item.itemId) {
 
             R.id.flash ->{
@@ -351,10 +364,38 @@ class CrimeListFragment : Fragment(){
                 }
                 true
             }
+            R.id.zone_1 ->{
+                zoneChange(1, menu, item)
+                true
+            }
+            R.id.zone_2 ->{
+                zoneChange(2, menu, item)
+                true
+            }
+            R.id.zone_3 ->{
+                zoneChange(3, menu, item)
+                true
+            }
+            R.id.zone_4 ->{
+                zoneChange(4, menu, item)
+                true
+            }
+            R.id.zone_5 ->{
+                zoneChange(5, menu, item)
+                true
+            }
+            R.id.zone_6 ->{
+                zoneChange(6, menu, item)
+                true
+            }
 
             else -> return super.onOptionsItemSelected(item)
         }
     }
+
+
+
+
 
     val selectImageFromGalleryResult = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
@@ -381,7 +422,7 @@ class CrimeListFragment : Fragment(){
                 val bOut = ByteArrayOutputStream()
                 bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut)
                 val img64 = Base64.encodeToString(bOut.toByteArray(), Base64.DEFAULT)
-                ApiClient.POST_img64(img64,img_path =  mFile3.path, img_plate_path = "None")
+                ApiClient.POST_img64(img64,img_path =  mFile3.path, img_plate_path = "None", zone = zone)
             } catch (e: IOException) {
                 Log.e("APP_LOG", "Exception in photoCallback", e)
             }
@@ -550,27 +591,6 @@ class CrimeListFragment : Fragment(){
 
 
 
-    private fun flash(camera: androidx.camera.core.Camera, item: MenuItem){
-        camera.apply {
-            if (cameraInfo.hasFlashUnit()) {
-                item.isVisible = true
-                    cameraControl.enableTorch(cameraInfo.torchState.value == TorchState.OFF)
-
-            } else {
-                item.isVisible = false
-            }
-
-            cameraInfo.torchState.observe(viewLifecycleOwner) { torchState ->
-                if (torchState == TorchState.OFF) {
-                    item.setIcon(R.drawable.ic_flash_off)
-                } else {
-                    item.setIcon(R.drawable.ic_flash_on)
-                }
-            }
-        }
-    }
-
-
     private fun getIpFromShared(): String? {
         val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         var url = preferences.getString("ip", "")
@@ -582,6 +602,67 @@ class CrimeListFragment : Fragment(){
         }
     }
 
-}
+    fun zoneChange(zon: Int, menu: Menu, item: MenuItem){
+        cameraxHelper.zone = zon
+        zone = zon
+        item.isChecked = !item.isChecked
+        when(zon){
+            1 ->{
+                menu.findItem(R.id.zone_show).setIcon(R.drawable.ic_first_zone)
+                menu.findItem(R.id.zone_1).setChecked(true)
+                menu.findItem(R.id.zone_2).setChecked(false)
+                menu.findItem(R.id.zone_3).setChecked(false)
+                menu.findItem(R.id.zone_4).setChecked(false)
+                menu.findItem(R.id.zone_5).setChecked(false)
+                menu.findItem(R.id.zone_6).setChecked(false)
+            }
+            2 ->{
+                menu.findItem(R.id.zone_show).setIcon(R.drawable.ic_second_zone)
+                menu.findItem(R.id.zone_1).setChecked(false)
+                menu.findItem(R.id.zone_2).setChecked(true)
+                menu.findItem(R.id.zone_3).setChecked(false)
+                menu.findItem(R.id.zone_4).setChecked(false)
+                menu.findItem(R.id.zone_5).setChecked(false)
+                menu.findItem(R.id.zone_6).setChecked(false)
+            }
+            3 ->{
+                menu.findItem(R.id.zone_show).setIcon(R.drawable.ic_third_zone)
+                menu.findItem(R.id.zone_1).setChecked(false)
+                menu.findItem(R.id.zone_2).setChecked(false)
+                menu.findItem(R.id.zone_3).setChecked(true)
+                menu.findItem(R.id.zone_4).setChecked(false)
+                menu.findItem(R.id.zone_5).setChecked(false)
+                menu.findItem(R.id.zone_6).setChecked(false)
+            }
+            4 ->{
+                menu.findItem(R.id.zone_show).setIcon(R.drawable.ic_firth_zone)
+                menu.findItem(R.id.zone_1).setChecked(false)
+                menu.findItem(R.id.zone_2).setChecked(false)
+                menu.findItem(R.id.zone_3).setChecked(false)
+                menu.findItem(R.id.zone_4).setChecked(true)
+                menu.findItem(R.id.zone_5).setChecked(false)
+                menu.findItem(R.id.zone_6).setChecked(false)
+            }
+            5 ->{
+                menu.findItem(R.id.zone_show).setIcon(R.drawable.ic_fifth_zone)
+                menu.findItem(R.id.zone_1).setChecked(false)
+                menu.findItem(R.id.zone_2).setChecked(false)
+                menu.findItem(R.id.zone_3).setChecked(false)
+                menu.findItem(R.id.zone_4).setChecked(false)
+                menu.findItem(R.id.zone_5).setChecked(true)
+                menu.findItem(R.id.zone_6).setChecked(false)
+            }
+            6 ->{
+                menu.findItem(R.id.zone_show).setIcon(R.drawable.ic_sixth_zone)
+                menu.findItem(R.id.zone_1).setChecked(false)
+                menu.findItem(R.id.zone_2).setChecked(false)
+                menu.findItem(R.id.zone_3).setChecked(false)
+                menu.findItem(R.id.zone_4).setChecked(false)
+                menu.findItem(R.id.zone_5).setChecked(false)
+                menu.findItem(R.id.zone_6).setChecked(true)
+            }
+        }
+
+}}
 
 

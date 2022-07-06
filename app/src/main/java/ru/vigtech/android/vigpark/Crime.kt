@@ -13,4 +13,5 @@ data class Crime(@PrimaryKey val id: UUID = UUID.randomUUID(),
                  var img_path: String = "",
                  var img_path_full: String = "",
                  var send: Boolean = false,
-                 var found: Boolean = false)
+                 var found: Boolean = false,
+                 var Zone: Int = 0)

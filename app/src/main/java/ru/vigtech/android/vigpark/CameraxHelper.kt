@@ -29,7 +29,8 @@ class CameraxHelper(
     private val onPictureTaken: ((File, Uri?) -> Unit)? = null,
     private val builderPreview: Preview.Builder? = null,
     var builderImageCapture: ImageCapture.Builder? = null,
-    private val onError: ((Throwable) -> Unit)? = null
+    private val onError: ((Throwable) -> Unit)? = null,
+    var zone: Int = 0
 
 
 
@@ -163,7 +164,7 @@ class CameraxHelper(
                         outputFileResults.savedUri
                     )
                     val img64 = PicturesUtils.img64FromFile(file.path)
-                    ApiClient.POST_img64(img64,img_path =  file.path, img_plate_path = "None")
+                    ApiClient.POST_img64(img64,img_path =  file.path, img_plate_path = "None", zone = zone)
                 }
 
                 override fun onError(exception: ImageCaptureException) {

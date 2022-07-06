@@ -46,11 +46,11 @@ object ApiClient {
 
 
 
-    fun POST_img64( img64_full: String, img_path: String, img_plate_path:String) {
+    fun POST_img64( img64_full: String, img_path: String, img_plate_path:String, zone:Int) {
         val post_api: PostInterface = retrofit.create(PostInterface::class.java)
-        val crime = Crime(title = "Отправка на сервер", img_path = img_path, img_path_full = img_plate_path, send = true, found = true)
+        val crime = Crime(title = "Отправка на сервер", img_path = img_path, img_path_full = img_plate_path, send = true, found = true, Zone=zone)
         CrimeRepository.get().addCrime(crime)
-        val call: Call<PostPhoto> = post_api.postPlate(img64_full)
+        val call: Call<PostPhoto> = post_api.postPlate(img64_full,zone)
         call.enqueue(object : Callback<PostPhoto?> {
             override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
                 try {
@@ -60,7 +60,7 @@ object ApiClient {
 //                            val data_get: List<PostPhoto> = PostPhoto.getResponse()
                         val RESULT = POST_PHOTO?.RESULT.toString()
                         val msg = POST_PHOTO?.palteNumber.toString()
-                        Log.w("POST", "onResponse| response: Result: $RESULT msg: $msg")
+                        Log.w("POST", "onResponse| response: Result: $RESULT msg: $msg, -- , $zone")
                         if (RESULT == "SUCCESS") {
                             crime.title = msg
                             crime.send = true
@@ -106,7 +106,7 @@ object ApiClient {
         crime.title = "Отправка на сервер"
         CrimeRepository.get().updateCrime(crime)
         val post_api: PostInterface = retrofit.create(PostInterface::class.java)
-        val call: Call<PostPhoto> = post_api.postPlate(img64)
+        val call: Call<PostPhoto> = post_api.postPlate(img64,crime.Zone)
         call.enqueue(object : Callback<PostPhoto?> {
             override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
                 try {
@@ -160,7 +160,7 @@ object ApiClient {
             .addConverterFactory(GsonConverterFactory.create(gsonBuilder.create()))
             .build()
         val post_api: PostInterface = retrofit.create(PostInterface::class.java)
-        val call: Call<PostPhoto> = post_api.postPlateEdited(img64, crime.title)
+        val call: Call<PostPhoto> = post_api.postPlateEdited(img64, crime.title,crime.Zone)
         call.enqueue(object : Callback<PostPhoto?> {
             override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
                 try {

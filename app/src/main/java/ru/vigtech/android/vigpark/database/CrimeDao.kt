@@ -8,7 +8,7 @@ import java.util.*
 @Dao
 interface CrimeDao {
 
-    @Query("SELECT * FROM crime ORDER BY date DESC")
+    @Query("SELECT * FROM crime ORDER BY date DESC ")
     fun getCrimes(): LiveData<List<Crime>>
 
     @Query("SELECT * FROM crime WHERE send = 0")

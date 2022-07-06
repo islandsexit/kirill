@@ -1,5 +1,6 @@
 package ru.vigtech.android.vigpark
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -7,15 +8,14 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.PointF
 import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.KeyEvent
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.fragment.app.Fragment
@@ -32,7 +32,6 @@ private const val ARG_CRIME_ID = "crime_id"
 private const val DIALOG_DATE = "DialogDate"
 private const val REQUEST_DATE = 0
 private const val REQUEST_CONTACT = 1
-private const val DATE_FORMAT = "EEE, MMM, dd"
 
 class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
@@ -55,6 +54,21 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var photoButton: ImageButton
     private lateinit var photoView: ImageView
 
+    var lastEvent: FloatArray? = null
+    var d = 0f
+    var newRot = 0f
+    private var isZoomAndRotate = false
+    private var isOutSide = false
+    private val NONE = 0
+    private val DRAG = 1
+    private val ZOOM = 2
+    private var mode = NONE
+    private val start = PointF()
+    private val mid = PointF()
+    var oldDist = 1f
+    private var xCoOrdinate = 0f
+    private  var yCoOrdinate = 0f
+
     private val crimeDetailViewModel: CrimeDetailViewModel by lazy {
         ViewModelProviders.of(this).get(CrimeDetailViewModel::class.java)
     }
@@ -67,6 +81,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         isEdit = false
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -82,6 +97,8 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         photoField = view.findViewById(R.id.photo_path) as EditText
 
         photoView = view.findViewById(R.id.crime_photo) as ImageView
+
+
         photoButton = view.findViewById(R.id.crime_btn) as ImageButton
 
         iconFound = view.findViewById(R.id.crimefragment_icon_found)
@@ -109,6 +126,12 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
 
         resend_fragment_activity = view.findViewById(R.id.resend_fragment_activity) as Button
+
+        photoView.setOnTouchListener { v, event ->
+            v.bringToFront()
+            viewTransformation(v, event)
+            true
+        }
 
         return view
     }
@@ -209,12 +232,12 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
            val img_64 = PicturesUtils.getImg_64(crime)
             if(img_64 != ""){
                 if(!isEdit) {
-                    ApiClient.POST_img64(img_64.toString(), crime)
-                    ApiClient.POST_img64(img_64.toString(), crime)
+                    ApiClient.POST_img64(img_64, crime)
+                    ApiClient.POST_img64(img_64, crime)
 
                 }else{
                     crime.title = titleField.text.toString()
-                    ApiClient.POST_img64_with_edited_text(img_64.toString(), "i", crime)
+                    ApiClient.POST_img64_with_edited_text(img_64, "i", crime)
                 }
                 crime.date = Calendar.getInstance().time
                 val fm: FragmentManager = requireActivity().supportFragmentManager
@@ -317,7 +340,93 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         }
     }
 
+    private fun viewTransformation(view: View, event: MotionEvent) {
 
+        when (event.action and MotionEvent.ACTION_MASK) {
+            MotionEvent.ACTION_DOWN -> {
+                Log.i("zoom", "${view.x}, ${event.rawY + yCoOrdinate}")
+                xCoOrdinate = view.x - event.rawX
+                yCoOrdinate = view.y - event.rawY
+                start[event.x] = event.y
+                isOutSide = false
+                mode = DRAG
+                lastEvent = null
+                view.animate().x(view.x).y(view.y)
+                    .setDuration(0).start()
+            }
+            MotionEvent.ACTION_POINTER_DOWN -> {
+                oldDist = spacing(event)
+                if (oldDist > 10f) {
+                    midPoint(mid, event)
+                    mode = ZOOM
+                }
+                lastEvent = FloatArray(4)
+                lastEvent!![0] = event.getX(0)
+                lastEvent!![1] = event.getX(1)
+                lastEvent!![2] = event.getY(0)
+                lastEvent!![3] = event.getY(1)
+                d = rotation(event)
+            }
+            MotionEvent.ACTION_UP -> {
+                isZoomAndRotate = false
+                if (mode === DRAG) {
+                    val x = event.x
+                    val y = event.y
+                }
+                isOutSide = true
+                mode = NONE
+                lastEvent = null
+                mode = NONE
+                lastEvent = null
+            }
+            MotionEvent.ACTION_OUTSIDE -> {
+                isOutSide = true
+                mode = NONE
+                lastEvent = null
+                mode = NONE
+                lastEvent = null
+            }
+            MotionEvent.ACTION_POINTER_UP -> {
+                mode = NONE
+                lastEvent = null
+            }
+            MotionEvent.ACTION_MOVE -> if (!isOutSide) {
+                if (mode === DRAG) {
+                    isZoomAndRotate = false
+                    view.animate().x(event.rawX + xCoOrdinate).y(event.rawY + yCoOrdinate)
+                        .setDuration(0).start()
+                }
+                if (mode === ZOOM && event.pointerCount == 2) {
+                    val newDist1 = spacing(event)
+                    if (newDist1 > 10f) {
+                        val scale = newDist1 / oldDist * view.scaleX
+                        view.scaleX = scale
+                        view.scaleY = scale
+                    }
+
+                }
+            }
+        }
+    }
+
+    private fun rotation(event: MotionEvent): Float {
+        val delta_x = (event.getX(0) - event.getX(1)).toDouble()
+        val delta_y = (event.getY(0) - event.getY(1)).toDouble()
+        val radians = Math.atan2(delta_y, delta_x)
+        return Math.toDegrees(radians).toFloat()
+    }
+
+    private fun spacing(event: MotionEvent): Float {
+        val x = event.getX(0) - event.getX(1)
+        val y = event.getY(0) - event.getY(1)
+        return Math.sqrt((x * x + y * y).toDouble()).toInt().toFloat()
+    }
+
+    private fun midPoint(point: PointF, event: MotionEvent) {
+        val x = event.getX(0) + event.getX(1)
+        val y = event.getY(0) + event.getY(1)
+        point[x / 2] = y / 2
+    }
 
 
     companion object {

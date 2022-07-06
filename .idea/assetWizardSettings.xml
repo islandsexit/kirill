@@ -24,7 +24,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\Admin\AppData\Local\Temp\baseline_settings_ethernet_24.xml" />
+                                                <entry key="imagePath" value="C:\Users\Admin\AppData\Local\Temp\baseline_filter_6_24.xml" />
                                                 <entry key="opacityPercent" value="80" />
                                               </map>
                                             </option>
@@ -36,7 +36,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="file:/$PROJECT_DIR$/../../SDK/icons/material/materialicons/settings_ethernet/baseline_settings_ethernet_24.xml" />
+                                                <entry key="url" value="file:/$PROJECT_DIR$/../../SDK/icons/material/materialicons/filter_6/baseline_filter_6_24.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -80,9 +80,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_ip_configuration" />
+                                      <entry key="outputName" value="ic_sixth_zone" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="666363" />
+                                      <entry key="themeColor" value="ffffff" />
                                     </map>
                                   </option>
                                 </PersistentState>
