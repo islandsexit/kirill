@@ -26,8 +26,8 @@
                 android:scaleType="fitCenter"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                tools:layout_height="300dp"
-                tools:layout_width="300dp" />
+                tools:layout_height="200dp"
+                tools:layout_width="match_parent" />
             <ImageButton
                 android:id="@+id/crime_btn"
                 android:layout_width="match_parent"
@@ -156,4 +156,14 @@
             android:layout_height="wrap_content"
             android:text="@string/crime_report_text"
             android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/longlat"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="10dp"
+        android:textSize="20sp"
+        android:textColor=""
+        android:text="Нажмите, чтобы получить местоположение фотографии"
+        android:autoLink="web" />
 </LinearLayout>

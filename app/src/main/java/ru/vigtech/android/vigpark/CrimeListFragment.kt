@@ -1,26 +1,31 @@
 package ru.vigtech.android.vigpark
 
+import android.Manifest
+import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.DialogInterface
+import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.util.Base64
 import android.util.Log
 import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
-import androidx.core.view.MenuItemCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.fragment.app.Fragment
@@ -30,6 +35,11 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.common.ConnectionResult
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +53,31 @@ import java.util.*
 
 private const val TAG = "CrimeListFragment"
 
-class CrimeListFragment : Fragment(){
+class CrimeListFragment : Fragment(),
+    GoogleApiClient.ConnectionCallbacks,
+    GoogleApiClient.OnConnectionFailedListener,
+    com.google.android.gms.location.LocationListener{
+
+    private var mGoogleApiClient: GoogleApiClient? = null
+    private var mLocation: Location? = null
+    private var mLocationManager: LocationManager? = null
+
+    private var mLocationRequest: LocationRequest? = null
+    private val listener: com.google.android.gms.location.LocationListener? = null
+    private val UPDATE_INTERVAL = (2 * 1000).toLong()  /* 10 secs */
+    private val FASTEST_INTERVAL: Long = 2000 /* 2 sec */
+
+    var latLng: LatLng = LatLng(0.0, 0.0)
+
+    private var locationManager: LocationManager? = null
+
+    private val isLocationEnabled: Boolean
+        get() {
+            locationManager = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            return locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager!!.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        }
+
+
 
 
     lateinit var cameraxHelper: CameraxHelper
@@ -105,12 +139,9 @@ class CrimeListFragment : Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-//        try {
-//            getIpFromShared()?.let { ApiClient.reBuildRetrofit(it) }
-//        }
-//        catch (e: Exception){
-//            Log.e("Retrofit", "No rerofit")
-//        }
+
+
+
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
 
 
@@ -125,7 +156,8 @@ class CrimeListFragment : Fragment(){
             onError = { Log.e("APPTAG", "error") },
             builderPreview = Preview.Builder().setTargetResolution(android.util.Size(200,200)),
             builderImageCapture = ImageCapture.Builder().setTargetResolution(android.util.Size(1024,768)),
-            filesDirectory = context?.filesDir
+            filesDirectory = context?.filesDir,
+            latLng = latLng
 
         )
         cameraxHelper.start()
@@ -332,6 +364,17 @@ class CrimeListFragment : Fragment(){
 
 
 
+        mGoogleApiClient = GoogleApiClient.Builder(requireContext())
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .addApi(LocationServices.API)
+            .build()
+
+        mLocationManager = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+
+        Log.d("gggg","uooo");
+        checkLocation()
+
         return view
     }
 
@@ -422,7 +465,7 @@ class CrimeListFragment : Fragment(){
                 val bOut = ByteArrayOutputStream()
                 bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut)
                 val img64 = Base64.encodeToString(bOut.toByteArray(), Base64.DEFAULT)
-                ApiClient.POST_img64(img64,img_path =  mFile3.path, img_plate_path = "None", zone = zone)
+                ApiClient.POST_img64(img64,img_path =  mFile3.path, img_plate_path = "None", zone = zone, long = 0.0, lat = 0.0)
             } catch (e: IOException) {
                 Log.e("APP_LOG", "Exception in photoCallback", e)
             }
@@ -499,15 +542,7 @@ class CrimeListFragment : Fragment(){
 
         override fun onClick(v: View) {
             callbacks?.onCrimeSelected(crime.id)
-//            if (crime.send) {
-//                callbacks?.onCrimeSelected(crime.id)
-//            }
-//            else{
-//               lifecycleScope.launch {
-//                   delay(3000)
-//                   ResendCrime(crime)
-//               }
-//            }
+
         }
     }
 
@@ -527,7 +562,6 @@ class CrimeListFragment : Fragment(){
             holder.bind(crime)
         }
         fun removeAt(position: Int) {
-//            crimes.removeAt(position) //todo remove adapter
             notifyItemRemoved(position)
         }
 
@@ -553,8 +587,19 @@ class CrimeListFragment : Fragment(){
 
     }
 
+    override fun onStop() {
+        super.onStop()
+        if (mGoogleApiClient!!.isConnected()) {
+            mGoogleApiClient!!.disconnect()
+        }
+    }
+
     override fun onStart() {
         super.onStart()
+        if (mGoogleApiClient != null) {
+            mGoogleApiClient!!.connect()
+        }
+
         crimeListViewModel.crimeListLiveData.observe(
             viewLifecycleOwner,
             Observer { crimes ->
@@ -576,7 +621,7 @@ class CrimeListFragment : Fragment(){
         //todo удалить строку, на которую нажал и коорая не отправилась
         if(File(crime.img_path).exists() && crime.img_path != "") {
             val bOut2 = ByteArrayOutputStream()
-            var bm = BitmapFactory.decodeFile(crime.img_path)
+            val bm = BitmapFactory.decodeFile(crime.img_path)
             bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut2)
             img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
             crime.date = Calendar.getInstance().time
@@ -593,7 +638,7 @@ class CrimeListFragment : Fragment(){
 
     private fun getIpFromShared(): String? {
         val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        var url = preferences.getString("ip", "")
+        val url = preferences.getString("ip", "")
         if (!url.equals("", ignoreCase = true)) {
             return url
         }
@@ -663,6 +708,106 @@ class CrimeListFragment : Fragment(){
             }
         }
 
-}}
+}
+
+    override fun onConnected(p0: Bundle?) {
+
+
+
+        if (androidx.core.app.ActivityCompat.checkSelfPermission(
+                requireContext(),
+                ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && androidx.core.app.ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return
+        }
+        mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
+        startLocationUpdates()
+        if (mLocation == null) {
+            startLocationUpdates()
+        }
+        if (mLocation != null) {
+            Log.w("GPS", "lat-${mLocation!!.latitude}, long-${mLocation!!.longitude}")
+            // mLatitudeTextView.setText(String.valueOf(mLocation.getLatitude()));
+            //mLongitudeTextView.setText(String.valueOf(mLocation.getLongitude()));
+        } else {
+            Toast.makeText(context, "Не могу найти местоположение", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    override fun onConnectionSuspended(p0: Int) {
+        mGoogleApiClient!!.connect()
+    }
+
+    override fun onConnectionFailed(p0: ConnectionResult) {
+        Log.i("GPS", "Ошибка, не могу найти местополежение " + p0.getErrorCode())
+    }
+
+    override fun onLocationChanged(p0: Location?) {
+
+        val msg = "Обновляю местоположение: " +
+                p0?.let { java.lang.Double.toString(it.latitude) } + "," +
+                p0?.let { java.lang.Double.toString(it.longitude) }
+        Log.i("GPS", msg)
+//        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
+        // You can now create a LatLng Object for use with maps
+        latLng = p0?.let { LatLng(it.latitude, p0.longitude) }!!
+        cameraxHelper.latLng = latLng
+    }
+
+    protected fun startLocationUpdates() {
+        // Create the location request
+        mLocationRequest = LocationRequest.create()
+            .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+            .setInterval(UPDATE_INTERVAL)
+            .setFastestInterval(FASTEST_INTERVAL)
+        // Request location updates
+
+        if (androidx.core.app.ActivityCompat.checkSelfPermission(
+                requireContext(),
+                ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED && androidx.core.app.ActivityCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Toast.makeText(requireContext(), "Ищу местоположение",Toast.LENGTH_SHORT).show()
+            return
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+            mLocationRequest, this)
+        Log.d("GPS", "Нашел местоположение")
+    }
+
+
+    private fun checkLocation(): Boolean {
+        if (!isLocationEnabled)
+            showAlert()
+        return isLocationEnabled
+    }
+
+    private fun showAlert() {
+        val dialog = AlertDialog.Builder(requireContext())
+        dialog.setTitle("Enable Location")
+            .setMessage("Использование вашего местоположения выключено'.\nВключите его " + "чтобы пользоваться приложением")
+            .setPositiveButton("Настройки") { paramDialogInterface, paramInt ->
+                val myIntent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(myIntent)
+            }
+            .setNegativeButton("Выйти") { paramDialogInterface, paramInt -> }
+        dialog.show()
+    }
+
+}
 
 

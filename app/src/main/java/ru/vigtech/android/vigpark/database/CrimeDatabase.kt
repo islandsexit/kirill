@@ -7,7 +7,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import ru.vigtech.android.vigpark.Crime
 
-@Database(entities = [ Crime::class ], version=4)
+@Database(entities = [ Crime::class ], version=5)
 @TypeConverters(CrimeTypeConverters::class)
 abstract class CrimeDatabase : RoomDatabase() {
 
@@ -57,6 +57,17 @@ val migration_6_7 = object : Migration(6, 7) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL(
             "ALTER TABLE Crime ADD COLUMN Zone INT NOT NULL DEFAULT 0 "
+        )
+    }
+}
+
+val migration_7_8 = object : Migration(7, 8) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "ALTER TABLE Crime ADD COLUMN lon DOUBLE NOT NULL DEFAULT 0 "
+        )
+        database.execSQL(
+            "ALTER TABLE Crime ADD COLUMN lat DOUBLE NOT NULL DEFAULT 0 "
         )
     }
 }

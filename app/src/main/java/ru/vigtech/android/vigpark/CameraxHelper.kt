@@ -3,6 +3,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.net.Uri
 import android.util.DisplayMetrics
+import android.util.Log
 import androidx.camera.core.*
 import androidx.camera.core.ImageCapture.*
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -10,6 +11,7 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
+import com.google.android.gms.maps.model.LatLng
 import ru.vigtech.android.vigpark.api.ApiClient
 import java.io.File
 import java.util.*
@@ -30,13 +32,13 @@ class CameraxHelper(
     private val builderPreview: Preview.Builder? = null,
     var builderImageCapture: ImageCapture.Builder? = null,
     private val onError: ((Throwable) -> Unit)? = null,
-    var zone: Int = 0
+    var zone: Int = 1,
+    var latLng: LatLng
 
 
 
 ) {
     var cameraControl: CameraControl? = null
-
     var cameraInfo: CameraInfo? = null
     private val context by lazy {
         when (caller) {
@@ -164,7 +166,8 @@ class CameraxHelper(
                         outputFileResults.savedUri
                     )
                     val img64 = PicturesUtils.img64FromFile(file.path)
-                    ApiClient.POST_img64(img64,img_path =  file.path, img_plate_path = "None", zone = zone)
+                    ApiClient.POST_img64(img64,img_path =  file.path, img_plate_path = "None", zone = zone, long = latLng.longitude, lat=latLng.latitude  )
+                    Log.i("Photo Taken", "${latLng.latitude} ${latLng.longitude}")
                 }
 
                 override fun onError(exception: ImageCaptureException) {

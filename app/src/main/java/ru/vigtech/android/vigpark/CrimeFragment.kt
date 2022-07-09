@@ -48,6 +48,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var iconSend: ImageView
     private lateinit var textFound: TextView
     private lateinit var textSend: TextView
+    private lateinit var longlat: TextView
 
     private lateinit var suspectButton: Button
     private lateinit var resend_fragment_activity: Button
@@ -95,6 +96,8 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         reportButton = view.findViewById(R.id.crime_report) as Button
         suspectButton = view.findViewById(R.id.crime_suspect) as Button
         photoField = view.findViewById(R.id.photo_path) as EditText
+
+        longlat = view.findViewById(R.id.longlat) as TextView
 
         photoView = view.findViewById(R.id.crime_photo) as ImageView
 
@@ -277,15 +280,16 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         updateUI()
     }
 
+
     private fun updateUI() {
         titleField.setText(crime.title)
         dateButton.text = crime.date.toString()
         if(File(crime.img_path).exists() && crime.img_path != ""){
            val mybitmap = BitmapFactory.decodeFile(crime.img_path)
             photoView.setImageBitmap(Bitmap.createBitmap(mybitmap))
-            photoView.setVisibility(View.VISIBLE)
+            photoView.visibility = View.VISIBLE
         }else{
-            photoView.setVisibility(View.INVISIBLE)
+            photoView.visibility = View.INVISIBLE
         }
 
 
@@ -306,8 +310,21 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             textFound.visibility = View.VISIBLE
         }
 
+        longlat.setOnClickListener {
+            val intent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("geo:0,0?q=${crime.lat},${crime.lon}")
+            )
+            startActivity(intent)
+        }
 
-    }
+//        val text = "Местоположение по <a href=\"https://yandex.ru/maps/?pt=${crime.lat},${crime.lon}&z=18&l=map\">ссылке</a>"
+//        longlat.text = Html.fromHtml(text);
+//        longlat.movementMethod = LinkMovementMethod.getInstance()
+//        longlat.setLinkTextColor(Color.parseColor("blue"))
+
+
+        }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when {
