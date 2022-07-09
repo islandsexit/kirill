@@ -311,11 +311,16 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         }
 
         longlat.setOnClickListener {
-            val intent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("geo:0,0?q=${crime.lat},${crime.lon}")
-            )
-            startActivity(intent)
+            if (crime.lat == 0.0){
+                Toast.makeText(requireContext(), "Нет геоданных", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("geo:0,0?q=${crime.lat},${crime.lon}")
+                )
+                startActivity(intent)
+            }
         }
 
 //        val text = "Местоположение по <a href=\"https://yandex.ru/maps/?pt=${crime.lat},${crime.lon}&z=18&l=map\">ссылке</a>"

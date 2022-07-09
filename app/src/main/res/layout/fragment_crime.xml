@@ -13,7 +13,8 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:maxHeight="300dp">
 
             <ImageView
 
@@ -21,9 +22,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
-
                 android:cropToPadding="false"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 tools:layout_height="200dp"
@@ -161,9 +161,9 @@
         android:id="@+id/longlat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:autoLink="web"
         android:paddingTop="10dp"
-        android:textSize="20sp"
-        android:textColor=""
         android:text="Нажмите, чтобы получить местоположение фотографии"
-        android:autoLink="web" />
+        android:textColor="@color/colorPrimary"
+        android:textSize="20sp" />
 </LinearLayout>
