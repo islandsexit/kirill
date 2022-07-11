@@ -3,10 +3,9 @@ package ru.vigtech.android.vigpark
 import android.Manifest
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.DialogInterface
-import android.content.Intent
-import android.content.SharedPreferences
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -26,6 +25,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.TorchState
+import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.fragment.app.Fragment
@@ -35,6 +35,8 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import com.google.android.gms.cast.CastRemoteDisplayLocalService.startService
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationRequest
@@ -68,6 +70,9 @@ class CrimeListFragment : Fragment(),
     private val FASTEST_INTERVAL: Long = 2000 /* 2 sec */
 
     var latLng: LatLng = LatLng(0.0, 0.0)
+
+    private val REQUEST_PERMISSIONS = 100
+    var boolean_permission = false
 
     private var locationManager: LocationManager? = null
 
@@ -143,6 +148,11 @@ class CrimeListFragment : Fragment(),
 
 
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
+
+
+
+
+
 
 
 
@@ -378,11 +388,7 @@ class CrimeListFragment : Fragment(),
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
 
-
-    }
 
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -575,13 +581,36 @@ class CrimeListFragment : Fragment(),
         }
     }
 
+    private val broadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            val latitude = java.lang.Double.valueOf(intent.getStringExtra("latutide"))
+            val longitude = java.lang.Double.valueOf(intent.getStringExtra("longitude"))
+
+            try {
+                latLng =LatLng(latitude,longitude)
+                cameraxHelper.latLng = latLng
+            } catch (e1: NullPointerException) {
+                e1.printStackTrace()
+            }
+
+        }
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
+        context?.unregisterReceiver(broadcastReceiver)
 
     }
 
 
+    override fun onResume(){
+        super.onResume()
+        context?.registerReceiver(broadcastReceiver, IntentFilter(LocationService.str_receiver));
+        if (androidx.core.app.ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && androidx.core.app.ActivityCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+    }
     override fun onPause() {
         super.onPause()
 
@@ -761,8 +790,8 @@ class CrimeListFragment : Fragment(),
         Log.i("GPS", msg)
 //        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
         // You can now create a LatLng Object for use with maps
-        latLng = p0?.let { LatLng(it.latitude, p0.longitude) }!!
-        cameraxHelper.latLng = latLng
+//        latLng = p0?.let { LatLng(it.latitude, p0.longitude) }!!
+//        cameraxHelper.latLng = latLng
     }
 
     protected fun startLocationUpdates() {
@@ -807,6 +836,8 @@ class CrimeListFragment : Fragment(),
             .setNegativeButton("Выйти") { paramDialogInterface, paramInt -> }
         dialog.show()
     }
+
+
 
 }
 

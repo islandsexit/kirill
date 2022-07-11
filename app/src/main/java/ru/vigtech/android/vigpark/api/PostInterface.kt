@@ -15,4 +15,9 @@ interface PostInterface {
     @FormUrlEncoded
     @POST("/onplate")
     fun  postPlateEdited( @Field("image") img64_full: String, @Field("plate") edited_plate_number: String, @Field("zone")zone:Int, @Field("long")long: Double, @Field("lat")lat:Double): Call<PostPhoto>
+
+    @FormUrlEncoded
+    @POST("/ongeo")
+    fun  postLocation(@Field("long")long: Double, @Field("lat")lat:Double): Call<PostPhoto>
+
 }

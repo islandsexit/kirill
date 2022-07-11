@@ -225,6 +225,50 @@ object ApiClient {
 
     }
 
+    fun POST_location(lon: Double, lat: Double) {
+        val gsonBuilder = GsonBuilder()
+        val retrofit = Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(GsonConverterFactory.create(gsonBuilder.create()))
+            .build()
+        val post_api: PostInterface = retrofit.create(PostInterface::class.java)
+        val call: Call<PostPhoto> = post_api.postLocation(lon, lat)
+        call.enqueue(object : Callback<PostPhoto?> {
+            override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
+                try {
+                    val statusCode = response.code()
+                    if (statusCode == 200) {
+                        val POST_PHOTO: PostPhoto? = response.body()
+//                            val data_get: List<PostPhoto> = PostPhoto.getResponse()
+                        val RESULT = POST_PHOTO?.RESULT.toString()
+                        val msg = POST_PHOTO?.palteNumber.toString()
+                        Log.w("POST_img64_with_edited_text", "onResponse| response: Result: $RESULT msg: $msg")
+                        if (RESULT == "SUCCESS") {
+                            //todo loaction
+                        } else {
+                            //todo location
+                        }
+                        //todo location
+
+                                      }
+                } catch (e: Exception) {
+                    Log.e("POST_location", "onResponse | exception", e)
+
+
+                }
+            }
+
+            override fun onFailure(call: Call<PostPhoto?>, t: Throwable) {
+                Log.e("POST_img64_with_edited_text", "onFailure", t)
+
+
+            }
+        })
+
+
+    }
+
+
 
 
 

@@ -323,11 +323,6 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
             }
         }
 
-//        val text = "Местоположение по <a href=\"https://yandex.ru/maps/?pt=${crime.lat},${crime.lon}&z=18&l=map\">ссылке</a>"
-//        longlat.text = Html.fromHtml(text);
-//        longlat.movementMethod = LinkMovementMethod.getInstance()
-//        longlat.setLinkTextColor(Color.parseColor("blue"))
-
 
         }
 
