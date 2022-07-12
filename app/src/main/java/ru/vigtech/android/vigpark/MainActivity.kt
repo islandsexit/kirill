@@ -15,7 +15,6 @@ import android.view.KeyEvent
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
-import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import java.util.*
@@ -36,15 +35,7 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
         setContentView(R.layout.activity_main)
 
 
-        fn_permission();
 
-        val alarmMgr = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(this, MyAlarmReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
-        var time = Calendar.getInstance();
-        time.setTimeInMillis(System.currentTimeMillis());
-        time.add(Calendar.SECOND, 5);
-        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(),3000, pendingIntent);
         // Call setNavigationItemSelectedListener on the NavigationView to detect when items are clicked
 //
 
@@ -63,15 +54,23 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
         val MY_CAMERA_REQUEST : Int = 2
         if (checkSelfPermission(
                 Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.CAMERA), MY_CAMERA_REQUEST)
+            requestPermissions(arrayOf(Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_BACKGROUND_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), MY_CAMERA_REQUEST)
         }
         if (checkSelfPermission(
                 Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), MY_READ_EXTERNAL_REQUEST)
+            requestPermissions(arrayOf(), MY_READ_EXTERNAL_REQUEST)
         }
 
 
 
+        val alarmMgr = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, MyAlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        var time = Calendar.getInstance();
+        time.setTimeInMillis(System.currentTimeMillis());
+        time.add(Calendar.SECOND, 5);
+
+        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(),3000, pendingIntent);
         val currentFragment =
             supportFragmentManager.findFragmentById(R.id.fragment_container)
 
@@ -129,23 +128,38 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
 
 
     private fun fn_permission() {
-        var boolean_permission = false;
-        if ((ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)) {
-            if ((androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale(
-                    getApplicationContext() as Activity, android.Manifest.permission.ACCESS_FINE_LOCATION))) {
-            } else {
-                androidx.core.app.ActivityCompat.requestPermissions(getApplicationContext() as Activity, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION) ,100);
-            }
-        } else {
-             boolean_permission = true;
+       val boolean_permission = true;
 
-        }
+
         if (boolean_permission) {
             val intent2 = Intent(getApplicationContext(), LocationService::class.java);
 //            startService(intent2);
             startForegroundService(intent2)
         } else {
             Toast.makeText(getApplicationContext(), "Please enable the gps", Toast.LENGTH_SHORT).show();
+        }
+    }
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+             2 -> {
+                if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    fn_permission();
+
+
+                } else {
+                    Toast.makeText(
+                        applicationContext,
+                        "Please allow the permission",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
         }
     }
 

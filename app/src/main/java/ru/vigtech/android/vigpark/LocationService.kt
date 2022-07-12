@@ -47,6 +47,7 @@ class LocationService : Service(), LocationListener {
             .build()
 
         this.startForeground(110, notification)
+
         intent = Intent(str_receiver)
         message = JsonObject()
         locationManager = getApplicationContext().getSystemService(LOCATION_SERVICE) as LocationManager?
@@ -62,7 +63,7 @@ class LocationService : Service(), LocationListener {
         ) {
             return
         }
-        locationManager!!.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000L,10f,this)
+        locationManager!!.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2000L,10f,this)
     }
 
     override fun onLocationChanged(p0: Location) {
@@ -78,7 +79,7 @@ class LocationService : Service(), LocationListener {
             ) {
                 return
             }
-            location = locationManager!!.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            location = locationManager!!.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
             if (location != null) {
                 Log.e("catch", "location!=null")
                 message?.addProperty("lat", location.getLatitude())

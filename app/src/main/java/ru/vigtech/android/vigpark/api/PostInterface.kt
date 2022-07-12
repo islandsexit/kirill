@@ -9,12 +9,12 @@ import retrofit2.http.POST
 interface PostInterface {
     @FormUrlEncoded
     @POST("/onplate")
-    fun  postPlate(@Field("image") img64_full: String, @Field("zone")zone:Int, @Field("long")long: Double, @Field("lat")lat:Double): Call<PostPhoto>
+    fun  postPlate(@Field("image") img64_full: String, @Field("zone")zone:Int, @Field("lon")long: Double, @Field("lat")lat:Double): Call<PostPhoto>
 
 
     @FormUrlEncoded
     @POST("/onplate")
-    fun  postPlateEdited( @Field("image") img64_full: String, @Field("plate") edited_plate_number: String, @Field("zone")zone:Int, @Field("long")long: Double, @Field("lat")lat:Double): Call<PostPhoto>
+    fun  postPlateEdited( @Field("image") img64_full: String, @Field("plate") edited_plate_number: String, @Field("zone")zone:Int, @Field("lon")long: Double, @Field("lat")lat:Double): Call<PostPhoto>
 
     @FormUrlEncoded
     @POST("/ongeo")
