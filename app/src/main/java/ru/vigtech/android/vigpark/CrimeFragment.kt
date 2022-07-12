@@ -39,10 +39,6 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
     private lateinit var crime: Crime
     private lateinit var titleField: EditTextWithDel
-    private lateinit var dateButton: Button
-    private lateinit var solvedCheckBox: CheckBox
-    private lateinit var reportButton: Button
-    private lateinit var photoField: EditText
 
     private lateinit var iconFound: ImageView
     private lateinit var iconSend: ImageView
@@ -50,14 +46,11 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
     private lateinit var textSend: TextView
     private lateinit var longlat: TextView
 
-    private lateinit var suspectButton: Button
     private lateinit var resend_fragment_activity: Button
-    private lateinit var photoButton: ImageButton
     private lateinit var photoView: ImageView
 
     var lastEvent: FloatArray? = null
     var d = 0f
-    var newRot = 0f
     private var isZoomAndRotate = false
     private var isOutSide = false
     private val NONE = 0
@@ -91,18 +84,12 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         val view = inflater.inflate(R.layout.fragment_crime, container, false)
 
         titleField = view.findViewById(R.id.crime_title) as EditTextWithDel
-        dateButton = view.findViewById(R.id.crime_date) as Button
-        solvedCheckBox = view.findViewById(R.id.crime_solved) as CheckBox
-        reportButton = view.findViewById(R.id.crime_report) as Button
-        suspectButton = view.findViewById(R.id.crime_suspect) as Button
-        photoField = view.findViewById(R.id.photo_path) as EditText
+
 
         longlat = view.findViewById(R.id.longlat) as TextView
 
         photoView = view.findViewById(R.id.crime_photo) as ImageView
 
-
-        photoButton = view.findViewById(R.id.crime_btn) as ImageButton
 
         iconFound = view.findViewById(R.id.crimefragment_icon_found)
         iconSend = view.findViewById(R.id.crimefragment_icon_send)
@@ -211,20 +198,8 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
 
         titleField.addTextChangedListener(titleWatcher)
-        photoField.addTextChangedListener(titleWatcher_photo)
 
-        solvedCheckBox.apply {
-            setOnCheckedChangeListener { _, isChecked ->
-                crime.isSolved = isChecked
-            }
-        }
 
-        dateButton.setOnClickListener {
-            DatePickerFragment.newInstance(crime.date).apply {
-                setTargetFragment(this@CrimeFragment, REQUEST_DATE)
-                show(this@CrimeFragment.requireFragmentManager(), DIALOG_DATE)
-            }
-        }
 
         if(crime.send || crime.found){
             resend_fragment_activity.visibility = View.GONE
@@ -250,23 +225,6 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
 
 
-        suspectButton.apply {
-            val pickContactIntent =
-                Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI)
-
-            setOnClickListener {
-                startActivityForResult(pickContactIntent, REQUEST_CONTACT)
-            }
-
-            val packageManager: PackageManager = requireActivity().packageManager
-            val resolvedActivity: ResolveInfo? =
-                packageManager.resolveActivity(pickContactIntent,
-                    PackageManager.MATCH_DEFAULT_ONLY)
-            if (resolvedActivity == null) {
-                isEnabled = false
-            }
-        }
-
 
     }
 
@@ -283,7 +241,6 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
     private fun updateUI() {
         titleField.setText(crime.title)
-        dateButton.text = crime.date.toString()
         if(File(crime.img_path).exists() && crime.img_path != ""){
            val mybitmap = BitmapFactory.decodeFile(crime.img_path)
             photoView.setImageBitmap(Bitmap.createBitmap(mybitmap))
@@ -293,14 +250,6 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         }
 
 
-        solvedCheckBox.apply {
-            isChecked = crime.isSolved
-            jumpDrawablesToCurrentState()
-        }
-        if (crime.suspect.isNotEmpty()) {
-            suspectButton.text = crime.suspect
-        }
-        photoField.setText((crime.img_path))
 
         if(!crime.send){
             iconSend.visibility = View.VISIBLE
@@ -331,36 +280,6 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
         }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        when {
-            resultCode != Activity.RESULT_OK -> return
-
-            requestCode == REQUEST_CONTACT && data != null -> {
-                val contactUri: Uri? = data.data
-                // Specify which fields you want your query to return values for.
-                val queryFields = arrayOf(ContactsContract.Contacts.DISPLAY_NAME)
-                // Perform your query - the contactUri is like a "where" clause here
-                val cursor = contactUri?.let {
-                    requireActivity().contentResolver
-                        .query(it, queryFields, null, null, null)
-                }
-                cursor?.use {
-                    // Double-check that you actually got results
-                    if (it.count == 0) {
-                        return
-                    }
-
-                    // Pull out the first column of the first row of data -
-                    // that is your suspect's name.
-                    it.moveToFirst()
-                    val suspect = it.getString(0)
-                    crime.suspect = suspect
-                    crimeDetailViewModel.saveCrime(crime)
-                    suspectButton.text = suspect
-                }
-            }
-        }
-    }
 
     private fun viewTransformation(view: View, event: MotionEvent) {
 

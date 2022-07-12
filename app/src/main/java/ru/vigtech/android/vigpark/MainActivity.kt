@@ -44,16 +44,12 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
 
 
 
-        val MY_READ_EXTERNAL_REQUEST : Int = 1
         val MY_CAMERA_REQUEST : Int = 2
         if (checkSelfPermission(
                 Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.CAMERA), MY_CAMERA_REQUEST)
+            requestPermissions(arrayOf(Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION), MY_CAMERA_REQUEST)
         }
-        if (checkSelfPermission(
-                Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), MY_READ_EXTERNAL_REQUEST)
-        }
+
 
 
 
