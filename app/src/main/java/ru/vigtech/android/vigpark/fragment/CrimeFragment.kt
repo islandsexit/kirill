@@ -1,39 +1,45 @@
-package ru.vigtech.android.vigpark
+package ru.vigtech.android.vigpark.fragment
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.content.pm.ResolveInfo
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.net.Uri
 import android.os.Bundle
-import android.provider.ContactsContract
+import android.provider.Settings
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.Button
+import android.widget.ImageView
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import ru.vigtech.android.vigpark.database.Crime
+import ru.vigtech.android.vigpark.ui.EditTextWithDel
+import ru.vigtech.android.vigpark.tools.PicturesUtils
+import ru.vigtech.android.vigpark.R
 import ru.vigtech.android.vigpark.api.ApiClient
+import ru.vigtech.android.vigpark.viewmodel.CrimeDetailViewModel
 import java.io.File
 import java.util.*
 
 
-private const val TAG = "CrimeFragment"
-private const val ARG_CRIME_ID = "crime_id"
-private const val DIALOG_DATE = "DialogDate"
-private const val REQUEST_DATE = 0
-private const val REQUEST_CONTACT = 1
 
-class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
+
+class CrimeFragment : Fragment(){
+
+
+    private lateinit var infoButton: Button
+
 
     var isEdit = false
 
@@ -84,7 +90,14 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         val view = inflater.inflate(R.layout.fragment_crime, container, false)
 
         titleField = view.findViewById(R.id.crime_title) as EditTextWithDel
-
+        infoButton = view.findViewById(R.id.info_button)
+        infoButton.setOnClickListener {
+            val dialog = AlertDialog.Builder(requireContext())
+            dialog.setTitle("Информация")
+                .setMessage(crime.info)
+                .setNegativeButton("Выйти") { paramDialogInterface, paramInt -> }
+            dialog.show()
+        }
 
         longlat = view.findViewById(R.id.longlat) as TextView
 
@@ -95,6 +108,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
         iconSend = view.findViewById(R.id.crimefragment_icon_send)
         textFound = view.findViewById(R.id.crimefragment_text_found)
         textSend = view.findViewById(R.id.crimefragment_text_send)
+
 
         titleField.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
             if(!isEdit) {
@@ -233,13 +247,12 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 //        crimeDetailViewModel.saveCrime(crime)
     }
 
-    override fun onDateSelected(date: Date) {
-        crime.date = date
-        updateUI()
-    }
 
 
     private fun updateUI() {
+        if(crime.info.isEmpty()){
+            infoButton.visibility = View.GONE
+        }
         titleField.setText(crime.title)
         if(File(crime.img_path).exists() && crime.img_path != ""){
            val mybitmap = BitmapFactory.decodeFile(crime.img_path)
@@ -371,7 +384,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
 
     companion object {
-
+        private  val ARG_CRIME_ID = "crime_id"
         fun newInstance(crimeId: UUID): CrimeFragment {
             val args = Bundle().apply {
                 putSerializable(ARG_CRIME_ID, crimeId)

@@ -1,15 +1,15 @@
-package ru.vigtech.android.vigpark
+package ru.vigtech.android.vigpark.database
 
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.Room
-import ru.vigtech.android.vigpark.database.*
 import java.util.*
 import java.util.concurrent.Executors
 
-private const val DATABASE_NAME = "crime-database"
+
 
 class CrimeRepository private constructor(context: Context) {
+    private val DATABASE_NAME = "crime-database"
 
     private val database : CrimeDatabase = Room.databaseBuilder(
         context.applicationContext,
@@ -21,6 +21,7 @@ class CrimeRepository private constructor(context: Context) {
         .addMigrations(migration_5_6)
         .addMigrations(migration_6_7)
         .addMigrations(migration_7_8)
+        .addMigrations(migration_8_9)
         .build()
     private val crimeDao = database.crimeDao()
     private val executor = Executors.newSingleThreadExecutor()

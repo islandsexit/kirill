@@ -24,4 +24,6 @@
     <string name="flash">Фонарик</string>
     <string name="ip_сщташпгкфешщт">Изменить ip сервера</string>
     <string name="zone">Зона</string>
+    <string name="photo">Фото</string>
+    <string name="info">Посмотреть информацию</string>
 </resources>

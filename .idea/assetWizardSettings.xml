@@ -24,8 +24,9 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\Admin\AppData\Local\Temp\baseline_filter_6_24.xml" />
+                                                <entry key="imagePath" value="C:\Users\Admin\AppData\Local\Temp\baseline_keyboard_arrow_up_24.xml" />
                                                 <entry key="opacityPercent" value="80" />
+                                                <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -36,7 +37,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="file:/$PROJECT_DIR$/../../SDK/icons/material/materialicons/filter_6/baseline_filter_6_24.xml" />
+                                                <entry key="url" value="file:/$PROJECT_DIR$/../../SDK/icons/material/materialicons/keyboard_arrow_up/baseline_keyboard_arrow_up_24.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -48,7 +49,8 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="opacityPercent" value="60" />
+                                                <entry key="opacityPercent" value="80" />
+                                                <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -60,6 +62,11 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
+                                                <entry key="fontFamily" value="Bookman Old Style" />
+                                                <entry key="opacityPercent" value="80" />
+                                                <entry key="paddingPercent" value="20" />
+                                                <entry key="text" value="·" />
+                                                <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -71,6 +78,11 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
+                                                <entry key="fontFamily" value="Bookman Old Style" />
+                                                <entry key="opacityPercent" value="80" />
+                                                <entry key="paddingPercent" value="20" />
+                                                <entry key="text" value="·" />
+                                                <entry key="trimmed" value="true" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -80,9 +92,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_sixth_zone" />
+                                      <entry key="outputName" value="ic_arrow" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="ffffff" />
+                                      <entry key="themeColor" value="666363" />
                                     </map>
                                   </option>
                                 </PersistentState>

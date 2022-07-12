@@ -11,6 +11,10 @@ import android.view.KeyEvent
 import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import ru.vigtech.android.vigpark.database.Crime
+import ru.vigtech.android.vigpark.database.CrimeRepository
+import ru.vigtech.android.vigpark.fragment.CrimeFragment
+import ru.vigtech.android.vigpark.fragment.CrimeListFragment
 import java.util.*
 
 

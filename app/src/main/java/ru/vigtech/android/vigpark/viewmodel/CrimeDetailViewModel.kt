@@ -1,9 +1,11 @@
-package ru.vigtech.android.vigpark
+package ru.vigtech.android.vigpark.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import ru.vigtech.android.vigpark.database.Crime
+import ru.vigtech.android.vigpark.database.CrimeRepository
 import java.util.*
 
 class CrimeDetailViewModel : ViewModel() {

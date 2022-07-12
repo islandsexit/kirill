@@ -1,11 +1,10 @@
-package ru.vigtech.android.vigpark
+package ru.vigtech.android.vigpark.camera
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.net.Uri
 import android.util.DisplayMetrics
 import android.util.Log
 import androidx.camera.core.*
-import androidx.camera.core.ImageCapture.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
@@ -13,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import com.google.android.gms.maps.model.LatLng
 import ru.vigtech.android.vigpark.api.ApiClient
+import ru.vigtech.android.vigpark.tools.PicturesUtils
 import java.io.File
 import java.util.*
 import java.util.concurrent.Executors
@@ -20,8 +20,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-private const val RATIO_4_3_VALUE = 4.0 / 3.0
-private const val RATIO_16_9_VALUE = 16.0 / 9.0
+
 
 class CameraxHelper(
     private val caller: Any,
@@ -38,6 +37,8 @@ class CameraxHelper(
 
 
 ) {
+    private val RATIO_4_3_VALUE = 4.0 / 3.0
+    private val RATIO_16_9_VALUE = 16.0 / 9.0
     var cameraControl: CameraControl? = null
     var cameraInfo: CameraInfo? = null
     private val context by lazy {

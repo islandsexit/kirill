@@ -1,20 +1,16 @@
 package ru.vigtech.android.vigpark.api
 
-import android.content.SharedPreferences
 import android.util.Log
-import androidx.preference.PreferenceManager
 import com.google.gson.GsonBuilder
-import kotlinx.coroutines.currentCoroutineContext
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.vigtech.android.vigpark.Crime
-import ru.vigtech.android.vigpark.CrimeRepository
+import ru.vigtech.android.vigpark.database.Crime
+import ru.vigtech.android.vigpark.database.CrimeRepository
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.coroutineContext
 
 
 object ApiClient {
@@ -61,9 +57,11 @@ object ApiClient {
 //                            val data_get: List<PostPhoto> = PostPhoto.getResponse()
                         val RESULT = POST_PHOTO?.RESULT.toString()
                         val msg = POST_PHOTO?.palteNumber.toString()
+                        val info = POST_PHOTO?.info.toString()
                         Log.w("POST", "onResponse| response: Result: $RESULT msg: $msg, -- , $crime")
                         if (RESULT == "SUCCESS") {
                             crime.title = msg
+                            crime.info = info
                             crime.send = true
                             crime.found = true
                             CrimeRepository.get().updateCrime(crime)
@@ -117,10 +115,12 @@ object ApiClient {
 //                            val data_get: List<PostPhoto> = PostPhoto.getResponse()
                         val RESULT = POST_PHOTO?.RESULT.toString()
                         val msg = POST_PHOTO?.palteNumber.toString()
+                        val info = POST_PHOTO?.info.toString()
                         Log.w("POST", "onResponse| response: Result: $RESULT msg: $msg")
                         if (RESULT == "SUCCESS") {
                             crime.send = true
                             crime.title = msg
+                            crime.info = info
                             crime.found = true
                             CrimeRepository.get().updateCrime(crime)
                         } else {
@@ -171,6 +171,7 @@ object ApiClient {
 //                            val data_get: List<PostPhoto> = PostPhoto.getResponse()
                         val RESULT = POST_PHOTO?.RESULT.toString()
                         val msg = POST_PHOTO?.palteNumber.toString()
+                        val info = POST_PHOTO?.info.toString()
                         Log.w("POST_img64_with_edited_text", "onResponse| response: Result: $RESULT msg: $msg")
                         if (RESULT == "SUCCESS") {
                             crime.send = true

@@ -2,9 +2,11 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    >
 
 
 
@@ -20,12 +22,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="200dp">
+            android:layout_marginBottom="200dp"
+            android:background="#fff"
+
+            >
+
             <androidx.camera.view.PreviewView
                 android:id="@+id/previewView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="10"
+
+
                 />
 
 
@@ -33,8 +41,13 @@
                 android:id="@+id/camera_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_camera"
+                android:layout_marginTop="-20dp"
                 android:layout_weight="3"
+                android:background="@drawable/border"
+                android:src="@drawable/ic_camera_black"
+                android:translationZ="20dp"
+                app:elevation="0dp"
+                tools:visibility="visible"
                 />
 
 
@@ -54,15 +67,34 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
-            app:menu="@menu/my_navigation_items" />
+            app:menu="@menu/my_navigation_items"
+            />
     </androidx.drawerlayout.widget.DrawerLayout>
-    <androidx.recyclerview.widget.RecyclerView
 
-        android:id="@+id/crime_recycler_view"
+
+    <LinearLayout
+        android:id="@+id/bottom_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         app:behavior_peekHeight="200dp"
-        android:background="@color/cardview_light_background"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"/>
+        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+        android:background="@xml/border_list">
+
+        <ImageView
+            android:id="@+id/arrow_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_arrow"
+            android:layout_gravity="center"/>
+        <androidx.recyclerview.widget.RecyclerView
+
+            android:id="@+id/crime_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+             />
+    </LinearLayout>
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

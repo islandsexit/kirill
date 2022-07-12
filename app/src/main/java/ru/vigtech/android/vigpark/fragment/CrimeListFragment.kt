@@ -1,4 +1,4 @@
-package ru.vigtech.android.vigpark
+package ru.vigtech.android.vigpark.fragment
 
 import android.Manifest
 import android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -18,6 +18,7 @@ import android.provider.Settings
 import android.text.SpannableStringBuilder
 import android.util.Base64
 import android.util.Log
+import android.util.Size
 import android.view.*
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,28 +41,39 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.BottomSheetCallback
 import com.google.android.material.navigation.NavigationView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import ru.vigtech.android.vigpark.R
 import ru.vigtech.android.vigpark.api.ApiClient
+import ru.vigtech.android.vigpark.camera.CameraxHelper
+import ru.vigtech.android.vigpark.database.Crime
+import ru.vigtech.android.vigpark.database.CrimeRepository
+import ru.vigtech.android.vigpark.swipe.SwipeToDeleteCallback
+import ru.vigtech.android.vigpark.swipe.SwipeToResendCallback
+import ru.vigtech.android.vigpark.tools.PicturesUtils
+import ru.vigtech.android.vigpark.viewmodel.CrimeListViewModel
 import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 
-private const val TAG = "CrimeListFragment"
-
 class CrimeListFragment : Fragment(),
     GoogleApiClient.ConnectionCallbacks,
     GoogleApiClient.OnConnectionFailedListener,
     com.google.android.gms.location.LocationListener{
+    private val TAG = "CrimeListFragment"
 
     private var mGoogleApiClient: GoogleApiClient? = null
     private var mLocation: Location? = null
     private var mLocationManager: LocationManager? = null
-
+    private lateinit var mBottomSheetLayout: LinearLayout
+    private lateinit var sheetBehavior: BottomSheetBehavior<View>
+    private lateinit var header_Arrow_Image: ImageView
     private var mLocationRequest: LocationRequest? = null
     private val listener: com.google.android.gms.location.LocationListener? = null
     private val UPDATE_INTERVAL = (2 * 1000).toLong()  /* 10 secs */
@@ -144,7 +156,24 @@ class CrimeListFragment : Fragment(),
 
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
 
+        mBottomSheetLayout = view.findViewById(R.id.bottom_layout);
+        sheetBehavior = BottomSheetBehavior.from(mBottomSheetLayout);
+        header_Arrow_Image = view.findViewById(R.id.arrow_list);
 
+        header_Arrow_Image.setOnClickListener{
+                if (sheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED)
+                } else {
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
+                }
+            }
+
+        sheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
+            override fun onStateChanged(bottomSheet: View, newState: Int) {}
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                header_Arrow_Image.rotation = slideOffset * 180
+            }
+        })
 
 
         cameraxHelper = CameraxHelper(
@@ -154,8 +183,8 @@ class CrimeListFragment : Fragment(),
                 Log.i("apptg", "Picture taken ${file.absolutePath} uri=$uri")
             },
             onError = { Log.e("APPTAG", "error") },
-            builderPreview = Preview.Builder().setTargetResolution(android.util.Size(200,200)),
-            builderImageCapture = ImageCapture.Builder().setTargetResolution(android.util.Size(1024,768)),
+            builderPreview = Preview.Builder().setTargetResolution(Size(200,200)),
+            builderImageCapture = ImageCapture.Builder().setTargetResolution(Size(1024,768)),
             filesDirectory = context?.filesDir,
             latLng = latLng
 
@@ -211,9 +240,6 @@ class CrimeListFragment : Fragment(),
                    val crime = crimeListViewModel.getCrimeFromPosition(viewHolder.position)
 
                     CrimeRepository.get().deleteCrime(crime)
-                    //notifyItemRemoved(position) execute only once
-                    //crimeListViewModel.deleteCrime(crime)
-//                    crimeListViewModel.deleteCrime(crime)
                     val file = File(crime.img_path)
                     if (file.exists()) {
                         file.delete()
@@ -265,7 +291,6 @@ class CrimeListFragment : Fragment(),
                     alert.setNegativeButton(
                         "Отмена"
                     ) { dialog, whichButton ->
-                        // what ever you want to do with No option.
                     }
 
                     alert.show()
@@ -497,6 +522,7 @@ class CrimeListFragment : Fragment(),
         private val solvedImageView: ImageView = itemView.findViewById(R.id.crime_solved)
         private val sendIcon:ImageView = itemView.findViewById(R.id.connection)
         private val foundIcon:ImageView = itemView.findViewById(R.id.not_found)
+        private val infoDot:ImageView = itemView.findViewById(R.id.crime_info_dot)
 
 
 
@@ -514,23 +540,26 @@ class CrimeListFragment : Fragment(),
             if(File(crime.img_path).exists() && crime.img_path != ""){
                 mybitmap = BitmapFactory.decodeFile(crime.img_path)
                 solvedImageView.setImageBitmap(Bitmap.createScaledBitmap(mybitmap, 120, 120, false))
-                solvedImageView.setVisibility(View.VISIBLE)
+                solvedImageView.visibility = View.VISIBLE
             }else{
-                solvedImageView.setVisibility(View.INVISIBLE)
+                solvedImageView.visibility = View.INVISIBLE
             }
             if(!crime.send){
-                sendIcon.setVisibility(View.VISIBLE)
-                foundIcon.setVisibility(View.GONE)
+                sendIcon.visibility = View.VISIBLE
+                foundIcon.visibility = View.GONE
 
             }
             else{
-                sendIcon.setVisibility(View.GONE)
+                sendIcon.visibility = View.GONE
                 if(!crime.found){
-                    foundIcon.setVisibility(View.VISIBLE)
+                    foundIcon.visibility = View.VISIBLE
                 }
                 else{
-                    foundIcon.setVisibility(View.GONE)
+                    foundIcon.visibility = View.GONE
                 }
+            }
+            if (crime.info.isEmpty()){
+                infoDot.visibility = View.GONE
             }
 
 
@@ -722,13 +751,7 @@ class CrimeListFragment : Fragment(),
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+
             return
         }
         mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient)
@@ -738,8 +761,6 @@ class CrimeListFragment : Fragment(),
         }
         if (mLocation != null) {
             Log.w("GPS", "lat-${mLocation!!.latitude}, long-${mLocation!!.longitude}")
-            // mLatitudeTextView.setText(String.valueOf(mLocation.getLatitude()));
-            //mLongitudeTextView.setText(String.valueOf(mLocation.getLongitude()));
         } else {
             Toast.makeText(context, "Не могу найти местоположение", Toast.LENGTH_SHORT).show()
         }
@@ -759,8 +780,6 @@ class CrimeListFragment : Fragment(),
                 p0?.let { java.lang.Double.toString(it.latitude) } + "," +
                 p0?.let { java.lang.Double.toString(it.longitude) }
         Log.i("GPS", msg)
-//        Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
-        // You can now create a LatLng Object for use with maps
         latLng = p0?.let { LatLng(it.latitude, p0.longitude) }!!
         cameraxHelper.latLng = latLng
     }

@@ -1,4 +1,4 @@
-package ru.vigtech.android.vigpark
+package ru.vigtech.android.vigpark.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,6 +8,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
 import android.view.MotionEvent
+import ru.vigtech.android.vigpark.R
 
 
 class EditTextWithDel : androidx.appcompat.widget.AppCompatEditText {

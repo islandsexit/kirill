@@ -1,10 +1,10 @@
-package ru.vigtech.android.vigpark
+package ru.vigtech.android.vigpark.tools
 
-import android.R.attr.bitmap
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.util.Base64
+import ru.vigtech.android.vigpark.database.Crime
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream

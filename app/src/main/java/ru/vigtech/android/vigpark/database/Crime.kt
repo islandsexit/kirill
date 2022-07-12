@@ -1,4 +1,4 @@
-package ru.vigtech.android.vigpark
+package ru.vigtech.android.vigpark.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -8,7 +8,6 @@ import java.util.*
 data class Crime(@PrimaryKey var id: UUID = UUID.randomUUID(),
                  var title: String = "",
                  var date: Date = Date(),
-
                  var isSolved: Boolean = false,
                  var suspect: String = "",
                  var img_path: String = "",
@@ -17,7 +16,8 @@ data class Crime(@PrimaryKey var id: UUID = UUID.randomUUID(),
                  var found: Boolean = false,
                  var Zone: Int = 1,
                  var lon: Double =0.0,
-                 var lat:Double = 0.0){
+                 var lat:Double = 0.0,
+                 var info: String = ""){
     override fun toString(): String {
 
 

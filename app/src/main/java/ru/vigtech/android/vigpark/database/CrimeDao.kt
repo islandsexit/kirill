@@ -2,7 +2,6 @@ package ru.vigtech.android.vigpark.database
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import ru.vigtech.android.vigpark.Crime
 import java.util.*
 
 @Dao
