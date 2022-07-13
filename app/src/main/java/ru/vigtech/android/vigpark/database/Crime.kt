@@ -3,6 +3,7 @@ package ru.vigtech.android.vigpark.database
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.util.*
+import kotlin.collections.ArrayList
 
 @Entity
 data class Crime(@PrimaryKey var id: UUID = UUID.randomUUID(),
@@ -17,7 +18,8 @@ data class Crime(@PrimaryKey var id: UUID = UUID.randomUUID(),
                  var Zone: Int = 1,
                  var lon: Double =0.0,
                  var lat:Double = 0.0,
-                 var info: String = ""){
+                 var info: String = "",
+                 var Rect: ArrayList<String?>? = ArrayList<String?>()){
     override fun toString(): String {
 
 

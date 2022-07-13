@@ -106,7 +106,7 @@ class CrimeListFragment : Fragment(),
 
     private lateinit var photoButton:ImageButton
 
-
+    private lateinit var arrowImage:ImageView
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var actionBarToggle: ActionBarDrawerToggle
     private lateinit var navView: NavigationView
@@ -189,11 +189,12 @@ class CrimeListFragment : Fragment(),
             latLng = latLng
 
         )
+
         cameraxHelper.start()
         cameraxHelper.changeCamera()
 
         drawerLayout = view.findViewById(R.id.drawer_layout)
-
+        arrowImage = view.findViewById(R.id.arrow_list)
 
         actionBarToggle = ActionBarDrawerToggle(activity, drawerLayout, 0, 0)
         drawerLayout.addDrawerListener(actionBarToggle)
@@ -209,6 +210,7 @@ class CrimeListFragment : Fragment(),
                 view.findViewById(R.id.crime_recycler_view) as RecyclerView
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
         photoButton = view.findViewById(R.id.camera_button) as ImageButton
+
 
         photoButton.setOnClickListener {
             try {
@@ -367,10 +369,12 @@ class CrimeListFragment : Fragment(),
             }
             override fun onDrawerOpened(drawerView: View) {
                 crimeRecyclerView.visibility = View.GONE
+                arrowImage.visibility = View.GONE
             }
 
             override fun onDrawerClosed(drawerView: View) {
                 crimeRecyclerView.visibility = View.VISIBLE
+                arrowImage.visibility = View.VISIBLE
             }
 
             /**
@@ -380,6 +384,7 @@ class CrimeListFragment : Fragment(),
             override fun onDrawerStateChanged(newState: Int) {
                 if (newState == 1){
                     crimeRecyclerView.visibility = View.VISIBLE
+                    arrowImage.visibility = View.VISIBLE
                 }
                 Log.i("OFFSET", newState.toString())
             }
@@ -399,6 +404,8 @@ class CrimeListFragment : Fragment(),
 
         Log.d("gggg","uooo");
         checkLocation()
+        zone = getZoneFromShared()
+        cameraxHelper.zone = zone
 
         return view
     }
@@ -414,7 +421,9 @@ class CrimeListFragment : Fragment(),
         super.onCreateOptionsMenu(menu, inflater)
         this.menu = menu
         inflater.inflate(R.menu.fragment_crime_list, menu)
-        menu.findItem(R.id.zone_1).setChecked(true)
+        selectMenu(zone, menu)
+
+
     }
 
 
@@ -676,68 +685,43 @@ class CrimeListFragment : Fragment(),
         }
     }
 
+    private fun getZoneFromShared(): Int {
+        val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val url = preferences.getString("zone", "1")
+        if (!url.equals("", ignoreCase = true)) {
+            return url!!.toInt()
+        }
+        else{
+            return 1
+        }
+    }
+
     fun zoneChange(zon: Int, menu: Menu, item: MenuItem){
         cameraxHelper.zone = zon
         zone = zon
-        item.isChecked = !item.isChecked
-        when(zon){
-            1 ->{
-                menu.findItem(R.id.zone_show).setIcon(R.drawable.ic_first_zone)
-                menu.findItem(R.id.zone_1).setChecked(true)
-                menu.findItem(R.id.zone_2).setChecked(false)
-                menu.findItem(R.id.zone_3).setChecked(false)
-                menu.findItem(R.id.zone_4).setChecked(false)
-                menu.findItem(R.id.zone_5).setChecked(false)
-                menu.findItem(R.id.zone_6).setChecked(false)
-            }
-            2 ->{
-                menu.findItem(R.id.zone_show).setIcon(R.drawable.ic_second_zone)
-                menu.findItem(R.id.zone_1).setChecked(false)
-                menu.findItem(R.id.zone_2).setChecked(true)
-                menu.findItem(R.id.zone_3).setChecked(false)
-                menu.findItem(R.id.zone_4).setChecked(false)
-                menu.findItem(R.id.zone_5).setChecked(false)
-                menu.findItem(R.id.zone_6).setChecked(false)
-            }
-            3 ->{
-                menu.findItem(R.id.zone_show).setIcon(R.drawable.ic_third_zone)
-                menu.findItem(R.id.zone_1).setChecked(false)
-                menu.findItem(R.id.zone_2).setChecked(false)
-                menu.findItem(R.id.zone_3).setChecked(true)
-                menu.findItem(R.id.zone_4).setChecked(false)
-                menu.findItem(R.id.zone_5).setChecked(false)
-                menu.findItem(R.id.zone_6).setChecked(false)
-            }
-            4 ->{
-                menu.findItem(R.id.zone_show).setIcon(R.drawable.ic_firth_zone)
-                menu.findItem(R.id.zone_1).setChecked(false)
-                menu.findItem(R.id.zone_2).setChecked(false)
-                menu.findItem(R.id.zone_3).setChecked(false)
-                menu.findItem(R.id.zone_4).setChecked(true)
-                menu.findItem(R.id.zone_5).setChecked(false)
-                menu.findItem(R.id.zone_6).setChecked(false)
-            }
-            5 ->{
-                menu.findItem(R.id.zone_show).setIcon(R.drawable.ic_fifth_zone)
-                menu.findItem(R.id.zone_1).setChecked(false)
-                menu.findItem(R.id.zone_2).setChecked(false)
-                menu.findItem(R.id.zone_3).setChecked(false)
-                menu.findItem(R.id.zone_4).setChecked(false)
-                menu.findItem(R.id.zone_5).setChecked(true)
-                menu.findItem(R.id.zone_6).setChecked(false)
-            }
-            6 ->{
-                menu.findItem(R.id.zone_show).setIcon(R.drawable.ic_sixth_zone)
-                menu.findItem(R.id.zone_1).setChecked(false)
-                menu.findItem(R.id.zone_2).setChecked(false)
-                menu.findItem(R.id.zone_3).setChecked(false)
-                menu.findItem(R.id.zone_4).setChecked(false)
-                menu.findItem(R.id.zone_5).setChecked(false)
-                menu.findItem(R.id.zone_6).setChecked(true)
-            }
-        }
+        val preferences: SharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val editor = preferences.edit()
+        editor.putString("zone", zon.toString())
+        editor.apply()
+
+        selectMenu(zon, menu)
 
 }
+    private fun selectMenu(zon: Int, menu: Menu){
+        val listOfMenu = listOf(R.id.zone_1 ,R.id.zone_2, R.id.zone_3, R.id.zone_4, R.id.zone_5, R.id.zone_6)
+        val listOfIcon = listOf(R.drawable.ic_first_zone,R.drawable.ic_second_zone,R.drawable.ic_third_zone,R.drawable.ic_firth_zone,R.drawable.ic_fifth_zone,R.drawable.ic_sixth_zone)
+        var count = 0
+        for (zone in listOfMenu){
+            count++
+            if(count == zon){
+                menu.findItem(R.id.zone_show).setIcon(listOfIcon[zon-1])
+                menu.findItem(listOfMenu[zon-1]).isChecked = true
+            }else {
+                menu.findItem(zone).isChecked = false
+            }
+        }
+    }
 
     override fun onConnected(p0: Bundle?) {
 

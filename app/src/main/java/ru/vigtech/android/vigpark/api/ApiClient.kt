@@ -1,4 +1,4 @@
-package ru.vigtech.android.vigpark.api
+package ru.vigtech. android.vigpark.api
 
 import android.util.Log
 import com.google.gson.GsonBuilder
@@ -44,7 +44,7 @@ object ApiClient {
 
     fun POST_img64( img64_full: String, img_path: String, img_plate_path:String, zone:Int,long: Double, lat:Double, ) {
         val post_api: PostInterface = retrofit.create(PostInterface::class.java)
-        val crime = Crime(title = "Отправка на сервер", img_path = img_path, img_path_full = img_plate_path, send = true, found = true, Zone=zone, lon = long, lat = lat)
+        val crime = Crime(title = "Отправка на сервер", img_path = img_path, img_path_full = img_plate_path, send = true, found = true, Zone=zone, lon = long, lat = lat, Rect = ArrayList<String?>())
         Log.w("Create", "create $crime")
         CrimeRepository.get().addCrime(crime)
         val call: Call<PostPhoto> = post_api.postPlate(img64_full,zone, long, lat)
@@ -58,12 +58,17 @@ object ApiClient {
                         val RESULT = POST_PHOTO?.RESULT.toString()
                         val msg = POST_PHOTO?.palteNumber.toString()
                         val info = POST_PHOTO?.info.toString()
+                        val Rect = POST_PHOTO?.Rect
                         Log.w("POST", "onResponse| response: Result: $RESULT msg: $msg, -- , $crime")
                         if (RESULT == "SUCCESS") {
                             crime.title = msg
                             crime.info = info
                             crime.send = true
                             crime.found = true
+                            if ((crime.Rect?.size ?: 1) != 4){
+                                crime.Rect = Rect
+                            }
+
                             CrimeRepository.get().updateCrime(crime)
                         } else {
                             crime.title = "Не распознан номер"
@@ -73,14 +78,14 @@ object ApiClient {
                         }
                     } else {
                         Log.e("POST", "onResponse | status: $statusCode")
-                        crime.title = "Не распознан номер"
+                        crime.title = "Сервер недоступен"
                         crime.send = false
                         crime.found = false
                         CrimeRepository.get().updateCrime(crime)
                     }
                 } catch (e: Exception) {
                     Log.e("POST", "onResponse | exception", e)
-                    crime.title = "Не распознан номер"
+                    crime.title = "Сервер недоступен"
                     crime.send = false
                     crime.found = false
                     CrimeRepository.get().updateCrime(crime)
@@ -90,7 +95,7 @@ object ApiClient {
 
             override fun onFailure(call: Call<PostPhoto?>, t: Throwable) {
                 Log.e("POST", "onFailure", t)
-                crime.title = "Не распознан номер"
+                crime.title = "Сервер недоступен"
                 crime.send = false
                 crime.found = false
                 CrimeRepository.get().updateCrime(crime)
@@ -103,6 +108,8 @@ object ApiClient {
 
     fun POST_img64(img64: String, crime: Crime) {
         crime.title = "Отправка на сервер"
+        crime.send = true
+        crime.found = true
         CrimeRepository.get().updateCrime(crime)
         val post_api: PostInterface = retrofit.create(PostInterface::class.java)
         val call: Call<PostPhoto> = post_api.postPlate(img64,crime.Zone, crime.lon, crime.lat)
@@ -116,12 +123,16 @@ object ApiClient {
                         val RESULT = POST_PHOTO?.RESULT.toString()
                         val msg = POST_PHOTO?.palteNumber.toString()
                         val info = POST_PHOTO?.info.toString()
+                        val Rect = POST_PHOTO?.Rect
                         Log.w("POST", "onResponse| response: Result: $RESULT msg: $msg")
                         if (RESULT == "SUCCESS") {
                             crime.send = true
                             crime.title = msg
                             crime.info = info
                             crime.found = true
+                            if ((crime.Rect?.size ?: 1) != 4){
+                                crime.Rect = Rect
+                            }
                             CrimeRepository.get().updateCrime(crime)
                         } else {
                             crime.send = true
@@ -132,11 +143,13 @@ object ApiClient {
                     } else {
                         Log.e("POST", "onResponse | status: $statusCode")
                         crime.send = false
+                        crime.title  = "Сервер недоступен"
                         CrimeRepository.get().updateCrime(crime)
                     }
                 } catch (e: Exception) {
                     Log.e("POST", "onResponse | exception", e)
                     crime.send = false
+                    crime.title  = "Сервер недоступен"
                     CrimeRepository.get().updateCrime(crime)
 
                 }
@@ -155,12 +168,12 @@ object ApiClient {
 
 
     fun POST_img64_with_edited_text(img64: String,img64_full: String, crime: Crime) {
-        val gsonBuilder = GsonBuilder()
-        val retrofit = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .addConverterFactory(GsonConverterFactory.create(gsonBuilder.create()))
-            .build()
         val post_api: PostInterface = retrofit.create(PostInterface::class.java)
+        crime.send = true
+        crime.found = true
+        val new_plate = crime.title
+        crime.title = "Отправка на сервер"
+        CrimeRepository.get().updateCrime(crime)
         val call: Call<PostPhoto> = post_api.postPlateEdited(img64, crime.title,crime.Zone,crime.lon, crime.lat)
         call.enqueue(object : Callback<PostPhoto?> {
             override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
@@ -178,6 +191,8 @@ object ApiClient {
                             crime.found = true
                             if(crime.title == ""){
                                 crime.title = msg
+                            }else{
+                                crime.title = new_plate
                             }
                             CrimeRepository.get().updateCrime(crime)
                         } else {
@@ -189,14 +204,19 @@ object ApiClient {
                             else{
                                 crime.send = true
                                 crime.found = false
+                                crime.title = new_plate
                             }
                             CrimeRepository.get().updateCrime(crime)
                         }
                     } else {
                         crime.send = false
-                        if(crime.title != "") {
+                        if(crime.title == "") {
                             crime.title  = "Сервер недоступен"
+                        }else{
+                            crime.title = new_plate
                         }
+                        crime.found = false
+
                         CrimeRepository.get().updateCrime(crime)
                         Log.e("POST_img64_with_edited_text", "onResponse | status: $statusCode")
 
@@ -204,9 +224,12 @@ object ApiClient {
                 } catch (e: Exception) {
                     Log.e("POST_img64_with_edited_text", "onResponse | exception", e)
                     crime.send = false
-                    if(crime.title != "") {
+                    if(crime.title == "") {
                         crime.title  = "Сервер недоступен"
+                    }else{
+                        crime.title = new_plate
                     }
+                    crime.found = false
                     CrimeRepository.get().updateCrime(crime)
 
                 }
@@ -215,8 +238,11 @@ object ApiClient {
             override fun onFailure(call: Call<PostPhoto?>, t: Throwable) {
                 Log.e("POST_img64_with_edited_text", "onFailure", t)
                 crime.send = false
-                if(crime.title != "") {
+                crime.found = false
+                if(crime.title == "") {
                     crime.title  = "Сервер недоступен"
+                }else{
+                    crime.title = new_plate
                 }
                 CrimeRepository.get().updateCrime(crime)
 

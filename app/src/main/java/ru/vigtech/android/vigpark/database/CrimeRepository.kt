@@ -22,6 +22,7 @@ class CrimeRepository private constructor(context: Context) {
         .addMigrations(migration_6_7)
         .addMigrations(migration_7_8)
         .addMigrations(migration_8_9)
+        .addMigrations(migration_9_10)
         .build()
     private val crimeDao = database.crimeDao()
     private val executor = Executors.newSingleThreadExecutor()

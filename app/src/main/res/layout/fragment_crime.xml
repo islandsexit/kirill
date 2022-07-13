@@ -5,7 +5,8 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:layout_margin="16dp">
+              android:layout_margin="16dp"
+    android:isScrollContainer="true">
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,22 +15,36 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:maxHeight="300dp">
+            >
 
             <ImageView
 
                 android:id="@+id/crime_photo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-
-                android:cropToPadding="false"
-                android:scaleType="centerInside"
+                android:scaleType="fitXY"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:layout_height="200dp"
+                tools:src="@color/material_dynamic_tertiary80"
                 tools:layout_width="match_parent"
                 android:contentDescription="@string/photo" />
+
+            <ImageView
+
+                android:id="@+id/crime_photo_small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:contentDescription="@string/photo"
+
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/crime_photo"
+                tools:layout_height="50dp"
+                tools:layout_width="match_parent"
+                tools:src="@color/material_dynamic_tertiary80" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -80,25 +95,31 @@
 
 
         </androidx.appcompat.widget.LinearLayoutCompat>
-        <TextView
-            style="?android:listSeparatorTextViewStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/crime_title_label"/>
 
-        <ru.vigtech.android.vigpark.ui.EditTextWithDel
-            android:id="@+id/crime_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/crime_title_hint"
-            android:singleLine="true"
-            android:textAllCaps="true"
-            android:textSize="25sp"/>
     </androidx.appcompat.widget.LinearLayoutCompat>
 
+<ScrollView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
+<LinearLayout
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <TextView
+        style="?android:listSeparatorTextViewStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/crime_title_label"/>
 
-
+    <ru.vigtech.android.vigpark.ui.EditTextWithDel
+        android:id="@+id/crime_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/crime_title_hint"
+        android:singleLine="true"
+        android:textAllCaps="true"
+        android:textSize="25sp"/>
     <TextView
             style="?android:listSeparatorTextViewStyle"
             android:layout_width="match_parent"
@@ -131,10 +152,15 @@
         android:id="@+id/longlat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:minHeight="10px"
         android:autoLink="web"
         android:paddingTop="10dp"
         android:text="Нажмите, чтобы получить местоположение фотографии"
         android:textColor="@color/colorPrimary"
         android:textSize="20sp" />
 
+
+
+</LinearLayout>
+</ScrollView>
 </LinearLayout>

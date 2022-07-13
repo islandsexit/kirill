@@ -6,5 +6,6 @@ data class PostPhoto(
    var RESULT: String,
    @SerializedName("PlateText")
    var palteNumber: String,
-   var info: String = ""
+   var info: String = "",
+   var Rect: ArrayList<String?> = ArrayList<String?>()
 )

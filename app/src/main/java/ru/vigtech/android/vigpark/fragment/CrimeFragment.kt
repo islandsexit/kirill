@@ -54,6 +54,7 @@ class CrimeFragment : Fragment(){
 
     private lateinit var resend_fragment_activity: Button
     private lateinit var photoView: ImageView
+    private lateinit var photoViewSmall: ImageView
 
     var lastEvent: FloatArray? = null
     var d = 0f
@@ -102,7 +103,8 @@ class CrimeFragment : Fragment(){
         longlat = view.findViewById(R.id.longlat) as TextView
 
         photoView = view.findViewById(R.id.crime_photo) as ImageView
-
+        photoViewSmall = view.findViewById(R.id.crime_photo_small) as ImageView
+        photoViewSmall.visibility= View.VISIBLE
 
         iconFound = view.findViewById(R.id.crimefragment_icon_found)
         iconSend = view.findViewById(R.id.crimefragment_icon_send)
@@ -255,13 +257,26 @@ class CrimeFragment : Fragment(){
         }
         titleField.setText(crime.title)
         if(File(crime.img_path).exists() && crime.img_path != ""){
-           val mybitmap = BitmapFactory.decodeFile(crime.img_path)
+           var mybitmap = BitmapFactory.decodeFile(crime.img_path)
+            if(!crime.Rect.isNullOrEmpty()) {
+                val myBitmapSmall =
+                    Bitmap.createBitmap(
+                        mybitmap, crime.Rect?.get(0)?.toInt()!!,
+                        crime.Rect?.get(1)?.toInt()!!,
+                        crime.Rect?.get(2)?.toInt()!!, crime.Rect?.get(3)?.toInt()!!
+                    )
+                photoViewSmall.setImageBitmap(Bitmap.createBitmap(myBitmapSmall))
+                photoViewSmall.visibility = View.VISIBLE
+
+            }else{
+                photoViewSmall.visibility = View.INVISIBLE
+            }
+
             photoView.setImageBitmap(Bitmap.createBitmap(mybitmap))
             photoView.visibility = View.VISIBLE
         }else{
             photoView.visibility = View.INVISIBLE
         }
-
 
 
         if(!crime.send){
