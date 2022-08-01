@@ -56,6 +56,7 @@ import ru.vigtech.android.vigpark.database.CrimeRepository
 import ru.vigtech.android.vigpark.swipe.SwipeToDeleteCallback
 import ru.vigtech.android.vigpark.swipe.SwipeToResendCallback
 import ru.vigtech.android.vigpark.tools.PicturesUtils
+import ru.vigtech.android.vigpark.tools.SizeHelper
 import ru.vigtech.android.vigpark.viewmodel.CrimeListViewModel
 import java.io.*
 import java.text.SimpleDateFormat
@@ -66,8 +67,9 @@ class CrimeListFragment : Fragment(),
     GoogleApiClient.ConnectionCallbacks,
     GoogleApiClient.OnConnectionFailedListener,
     com.google.android.gms.location.LocationListener{
-    private val TAG = "CrimeListFragment"
 
+    private val TAG = "CrimeListFragment"
+    private lateinit var mSizeHelper: SizeHelper
     private var mGoogleApiClient: GoogleApiClient? = null
     private var mLocation: Location? = null
     private var mLocationManager: LocationManager? = null
@@ -78,6 +80,13 @@ class CrimeListFragment : Fragment(),
     private val listener: com.google.android.gms.location.LocationListener? = null
     private val UPDATE_INTERVAL = (2 * 1000).toLong()  /* 10 secs */
     private val FASTEST_INTERVAL: Long = 2000 /* 2 sec */
+
+    //TOAST
+    private lateinit var toastInflater: LayoutInflater
+    private lateinit var toastLayout: View
+    private lateinit var toastImage: ImageView
+    private lateinit var toastTextView: TextView
+    private lateinit var toast: Toast
 
     var latLng: LatLng = LatLng(0.0, 0.0)
 
@@ -155,7 +164,14 @@ class CrimeListFragment : Fragment(),
 
 
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
+        mSizeHelper = SizeHelper()
 
+        //Toast start
+        toastInflater = layoutInflater
+        toastLayout = toastInflater.inflate(R.layout.toast_layout, view.findViewById(R.id.toast_layout_root))
+        toastImage = toastLayout.findViewById(R.id.image_toast)
+        toastTextView = toastLayout.findViewById(R.id.text_toast)
+        //Toast end
         mBottomSheetLayout = view.findViewById(R.id.bottom_layout);
         sheetBehavior = BottomSheetBehavior.from(mBottomSheetLayout);
         header_Arrow_Image = view.findViewById(R.id.arrow_list);
@@ -308,7 +324,8 @@ class CrimeListFragment : Fragment(),
 
                 R.id.delete_crimes -> {
                     val builder1: AlertDialog.Builder = AlertDialog.Builder(requireContext())
-                    builder1.setMessage("Удалить все снимки?")
+                    val size = mSizeHelper.getFormatSize(mSizeHelper.getFolderSize(context?.filesDir).toDouble())
+                    builder1.setMessage("Удалить все снимки? \n Снимки занимают $size")
                     builder1.setCancelable(true)
 
                     builder1.setPositiveButton(
@@ -487,7 +504,6 @@ class CrimeListFragment : Fragment(),
                 var bm = BitmapFactory.decodeStream(inputStream)
                 bm = PicturesUtils.getResizedBitmap(bm, 720, 480)
                 bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
-                img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
                 val mFile3 = File(
                     path_to_image,
                     UUID.randomUUID().toString() + "_" + ".jpg"
@@ -522,21 +538,21 @@ class CrimeListFragment : Fragment(),
     }
 
     private inner class CrimeHolder(view: View)
-        : RecyclerView.ViewHolder(view), View.OnClickListener {
+        : RecyclerView.ViewHolder(view), View.OnClickListener, View.OnLongClickListener {
 
         private lateinit var crime: Crime
 
         private val titleTextView: TextView = itemView.findViewById(R.id.crime_title)
         private val dateTextView: TextView = itemView.findViewById(R.id.crime_date)
         private val solvedImageView: ImageView = itemView.findViewById(R.id.crime_solved)
-        private val sendIcon:ImageView = itemView.findViewById(R.id.connection)
-        private val foundIcon:ImageView = itemView.findViewById(R.id.not_found)
-        private val infoDot:ImageView = itemView.findViewById(R.id.crime_info_dot)
-
+        private val sendIcon: ImageView = itemView.findViewById(R.id.connection)
+        private val foundIcon: ImageView = itemView.findViewById(R.id.not_found)
+        private val infoDot: ImageView = itemView.findViewById(R.id.crime_info_dot)
 
 
         init {
             itemView.setOnClickListener(this)
+            itemView.setOnLongClickListener(this)
 
         }
 
@@ -546,34 +562,28 @@ class CrimeListFragment : Fragment(),
             titleTextView.text = this.crime.title
             dateTextView.text = SimpleDateFormat("dd-MM-yyyy HH:mm").format(this.crime.date)
 //            var path_to_image = "/storage/emulated/0/${crime.img_path}"
-            if(File(crime.img_path).exists() && crime.img_path != ""){
+            if (File(crime.img_path).exists() && crime.img_path != "") {
                 mybitmap = BitmapFactory.decodeFile(crime.img_path)
                 solvedImageView.setImageBitmap(Bitmap.createScaledBitmap(mybitmap, 120, 120, false))
                 solvedImageView.visibility = View.VISIBLE
-            }else{
+            } else {
                 solvedImageView.visibility = View.INVISIBLE
             }
-            if(!crime.send){
+            if (!crime.send) {
                 sendIcon.visibility = View.VISIBLE
                 foundIcon.visibility = View.GONE
 
-            }
-            else{
+            } else {
                 sendIcon.visibility = View.GONE
-                if(!crime.found){
+                if (!crime.found) {
                     foundIcon.visibility = View.VISIBLE
-                }
-                else{
+                } else {
                     foundIcon.visibility = View.GONE
                 }
             }
-            if (crime.info.isEmpty()){
+            if (crime.info.isEmpty()) {
                 infoDot.visibility = View.GONE
             }
-
-
-
-
 
 
         }
@@ -581,6 +591,29 @@ class CrimeListFragment : Fragment(),
         override fun onClick(v: View) {
             callbacks?.onCrimeSelected(crime.id)
 
+        }
+
+        override fun onLongClick(p0: View?): Boolean {
+            toast = Toast(context)
+            if (File(crime.img_path).exists() && crime.img_path != "") {
+                var mybitmap = BitmapFactory.decodeFile(crime.img_path)
+                if (!crime.Rect.isNullOrEmpty()) {
+                    val myBitmapSmall =
+                        Bitmap.createBitmap(
+                            mybitmap, crime.Rect?.get(0)?.toInt()!!,
+                            crime.Rect?.get(1)?.toInt()!!,
+                            crime.Rect?.get(2)?.toInt()!!, crime.Rect?.get(3)?.toInt()!!
+                        )
+                    toastImage.setImageBitmap(Bitmap.createBitmap(myBitmapSmall))
+                    toastTextView.text = crime.title
+                    toast.setGravity(Gravity.CENTER, 0,0)
+                    toast.duration = Toast.LENGTH_LONG
+                    toast.view = toastLayout
+                    toast.show()
+                    return true
+                }
+            }
+            return false
         }
     }
 

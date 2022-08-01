@@ -8,6 +8,8 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import ru.vigtech.android.vigpark.api.PostInterface
+import ru.vigtech.android.vigpark.api.PostPhoto
 import ru.vigtech.android.vigpark.database.Crime
 import ru.vigtech.android.vigpark.database.CrimeRepository
 import java.util.concurrent.TimeUnit

@@ -14,6 +14,7 @@ import com.google.android.gms.maps.model.LatLng
 import ru.vigtech.android.vigpark.api.ApiClient
 import ru.vigtech.android.vigpark.tools.PicturesUtils
 import java.io.File
+import java.math.BigDecimal
 import java.util.*
 import java.util.concurrent.Executors
 import kotlin.math.abs
@@ -146,7 +147,6 @@ class CameraxHelper(
     fun takePicture() {
         val dir = filesDirectory ?: context.cacheDir
         if (!dir.exists()) dir.mkdirs()
-
         val file = File(dir, UUID.randomUUID().toString() + ".jpg")
         val metadata = ImageCapture.Metadata().apply {
             // Mirror image when using the front camera
@@ -176,4 +176,6 @@ class CameraxHelper(
                 }
             })
     }
+
+
 }

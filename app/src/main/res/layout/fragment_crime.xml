@@ -164,7 +164,7 @@
         android:autoLink="web"
         android:background="@drawable/border"
         android:paddingTop="10dp"
-        android:text="Местоположение"
+        android:text="местоположение"
         android:textColor="@color/colorPrimary"
         android:layout_marginTop="10dp"
         android:layout_marginHorizontal="20dp"
