@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 
 apply plugin: 'kotlin-android'
 
-apply plugin: 'kotlin-android-extensions'
+//apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'kotlin-kapt'
 
@@ -14,21 +14,22 @@ android {
             keyPassword '5682881'
             storeFile file('C:\\Users\\Admin\\Documents\\keys_android\\anpr.jks')
         }
-        realese {
+        release {
             storeFile file('C:\\Users\\Admin\\Documents\\keys_android\\anpr.jks')
             storePassword '5682881'
-            keyAlias '5682881'
+            keyAlias 'AK-47'
             keyPassword '5682881'
         }
     }
     compileSdkVersion 32
     defaultConfig {
         applicationId "ru.vigtech.android.vigpark"
-        minSdkVersion 29
+        minSdkVersion 28
         targetSdkVersion 32
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.release
     }
     buildTypes {
 
@@ -67,7 +68,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     implementation 'androidx.preference:preference-ktx:1.2.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.1.1'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.9.0'
 
     implementation 'androidx.test.espresso:espresso-core:3.4.0'
     implementation 'com.google.android.gms:play-services:12.0.1'

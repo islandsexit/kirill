@@ -66,7 +66,7 @@ import java.util.*
 class CrimeListFragment : Fragment(),
     GoogleApiClient.ConnectionCallbacks,
     GoogleApiClient.OnConnectionFailedListener,
-    com.google.android.gms.location.LocationListener{
+    com.google.android.gms.location.LocationListener {
 
     private val TAG = "CrimeListFragment"
     private lateinit var mSizeHelper: SizeHelper
@@ -95,10 +95,10 @@ class CrimeListFragment : Fragment(),
     private val isLocationEnabled: Boolean
         get() {
             locationManager = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            return locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager!!.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+            return locationManager!!.isProviderEnabled(LocationManager.GPS_PROVIDER) || locationManager!!.isProviderEnabled(
+                LocationManager.NETWORK_PROVIDER
+            )
         }
-
-
 
 
     lateinit var cameraxHelper: CameraxHelper
@@ -109,18 +109,16 @@ class CrimeListFragment : Fragment(),
     private lateinit var menu: Menu
 
 
-
     private lateinit var crimeRecyclerView: RecyclerView
     private lateinit var mybitmap: Bitmap
 
-    private lateinit var photoButton:ImageButton
+    private lateinit var photoButton: ImageButton
 
-    private lateinit var arrowImage:ImageView
+    private lateinit var arrowImage: ImageView
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var actionBarToggle: ActionBarDrawerToggle
     private lateinit var navView: NavigationView
     var zone: Int = 0
-
 
 
     private var adapter: CrimeAdapter? = CrimeAdapter(emptyList())
@@ -129,17 +127,12 @@ class CrimeListFragment : Fragment(),
     }
 
 
-
     private var callbacks: Callbacks? = null
 
 
     interface Callbacks {
         fun onCrimeSelected(crimeId: UUID)
     }
-
-
-
-
 
 
     override fun onAttach(context: Context) {
@@ -162,13 +155,13 @@ class CrimeListFragment : Fragment(),
     ): View? {
 
 
-
         val view = inflater.inflate(R.layout.fragment_crime_list, container, false)
         mSizeHelper = SizeHelper()
 
         //Toast start
         toastInflater = layoutInflater
-        toastLayout = toastInflater.inflate(R.layout.toast_layout, view.findViewById(R.id.toast_layout_root))
+        toastLayout =
+            toastInflater.inflate(R.layout.toast_layout, view.findViewById(R.id.toast_layout_root))
         toastImage = toastLayout.findViewById(R.id.image_toast)
         toastTextView = toastLayout.findViewById(R.id.text_toast)
         //Toast end
@@ -176,13 +169,13 @@ class CrimeListFragment : Fragment(),
         sheetBehavior = BottomSheetBehavior.from(mBottomSheetLayout);
         header_Arrow_Image = view.findViewById(R.id.arrow_list);
 
-        header_Arrow_Image.setOnClickListener{
-                if (sheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
-                    sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED)
-                } else {
-                    sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
-                }
+        header_Arrow_Image.setOnClickListener {
+            if (sheetBehavior.state != BottomSheetBehavior.STATE_EXPANDED) {
+                sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED)
+            } else {
+                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED)
             }
+        }
 
         sheetBehavior.addBottomSheetCallback(object : BottomSheetCallback() {
             override fun onStateChanged(bottomSheet: View, newState: Int) {}
@@ -194,13 +187,13 @@ class CrimeListFragment : Fragment(),
 
         cameraxHelper = CameraxHelper(
             caller = this,
-            previewView =  view.findViewById(R.id.previewView),
+            previewView = view.findViewById(R.id.previewView),
             onPictureTaken = { file, uri ->
                 Log.i("apptg", "Picture taken ${file.absolutePath} uri=$uri")
             },
             onError = { Log.e("APPTAG", "error") },
-            builderPreview = Preview.Builder().setTargetResolution(Size(200,200)),
-            builderImageCapture = ImageCapture.Builder().setTargetResolution(Size(1024,768)),
+            builderPreview = Preview.Builder().setTargetResolution(Size(200, 200)),
+            builderImageCapture = ImageCapture.Builder().setTargetResolution(Size(1024, 768)),
             filesDirectory = context?.filesDir,
             latLng = latLng
 
@@ -218,36 +211,27 @@ class CrimeListFragment : Fragment(),
         actionBarToggle.syncState()
 
 
-
         // Call findViewById on the NavigationView
         navView = view.findViewById(R.id.navigation)
 
         crimeRecyclerView =
-                view.findViewById(R.id.crime_recycler_view) as RecyclerView
+            view.findViewById(R.id.crime_recycler_view) as RecyclerView
         crimeRecyclerView.layoutManager = LinearLayoutManager(context)
         photoButton = view.findViewById(R.id.camera_button) as ImageButton
-
+//        crimeRecyclerView.setHasFixedSize(true)
+        crimeRecyclerView.setItemViewCacheSize(50)
 
         photoButton.setOnClickListener {
             try {
                 cameraxHelper.takePicture()
-            }
-            catch (e: Exception){
+            } catch (e: Exception) {
                 Log.e("PictureDemo", "Exception in take photo", e)
             }
 
         }
 
 
-
-
-
-
-       //todo camera size cameraBridgeViewBase.setMaxFrameSize(1280, 720)
-
-
-
-
+        //todo camera size cameraBridgeViewBase.setMaxFrameSize(1280, 720)
 
 
         //todo свайп
@@ -255,7 +239,7 @@ class CrimeListFragment : Fragment(),
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 crimeRecyclerView.adapter?.notifyItemRemoved(viewHolder.position)
                 CoroutineScope(Dispatchers.Default).launch {
-                   val crime = crimeListViewModel.getCrimeFromPosition(viewHolder.position)
+                    val crime = crimeListViewModel.getCrimeFromPosition(viewHolder.position)
 
                     CrimeRepository.get().deleteCrime(crime)
                     val file = File(crime.img_path)
@@ -285,7 +269,7 @@ class CrimeListFragment : Fragment(),
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.ip_configuration ->{
+                R.id.ip_configuration -> {
                     val alert = AlertDialog.Builder(requireContext())
                     val edittext = EditText(requireContext())
                     edittext.text = SpannableStringBuilder(getIpFromShared());
@@ -324,7 +308,9 @@ class CrimeListFragment : Fragment(),
 
                 R.id.delete_crimes -> {
                     val builder1: AlertDialog.Builder = AlertDialog.Builder(requireContext())
-                    val size = mSizeHelper.getFormatSize(mSizeHelper.getFolderSize(context?.filesDir).toDouble())
+                    val size = mSizeHelper.getFormatSize(
+                        mSizeHelper.getFolderSize(context?.filesDir).toDouble()
+                    )
                     builder1.setMessage("Удалить все снимки? \n Снимки занимают $size")
                     builder1.setCancelable(true)
 
@@ -332,33 +318,43 @@ class CrimeListFragment : Fragment(),
                         "Да",
                         DialogInterface.OnClickListener { dialog, id ->
                             try {
-                                val lastCrimeDate = crimeListViewModel.crimeListLiveData.value?.first()?.date
-                                crimeListViewModel.crimeListLiveData.observe(viewLifecycleOwner, Observer<List<Crime>>(){
-                                    for(crime in it) {
-                                        CoroutineScope(Dispatchers.Default).launch {
-                                            if (crime.date <= lastCrimeDate) {
-                                                val file = File(crime.img_path)
-                                                if (file.exists()) {
-                                                    file.delete()
-                                                    crimeListViewModel.deleteCrime(crime)
-                                                } else {
-                                                    this.cancel()
+                                val lastCrimeDate =
+                                    crimeListViewModel.crimeListLiveData.value?.first()?.date
+                                crimeListViewModel.crimeListLiveData.observe(
+                                    viewLifecycleOwner,
+                                    Observer<List<Crime>>() {
+                                        for (crime in it) {
+                                            CoroutineScope(Dispatchers.Default).launch {
+                                                if (crime.date <= lastCrimeDate) {
+                                                    val file = File(crime.img_path)
+                                                    if (file.exists()) {
+                                                        file.delete()
+                                                        crimeListViewModel.deleteCrime(crime)
+                                                    } else {
+                                                        this.cancel()
+                                                    }
                                                 }
                                             }
+
+
                                         }
-
-
-                                    }})
-                            } catch (e: Exception){
-                                Toast.makeText(requireContext(), "Ничего не нашлось", Toast.LENGTH_SHORT).show()
+                                    })
+                            } catch (e: Exception) {
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Ничего не нашлось",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
-                            dialog.cancel() })
+                            dialog.cancel()
+                        })
 
                     builder1.setNegativeButton(
                         "Нет",
                         DialogInterface.OnClickListener { dialog, id ->
 
-                            dialog.cancel() })
+                            dialog.cancel()
+                        })
 
                     val alert11: AlertDialog = builder1.create()
                     alert11.show()
@@ -384,6 +380,7 @@ class CrimeListFragment : Fragment(),
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
 //                crimeRecyclerView.visibility = View.GONE
             }
+
             override fun onDrawerOpened(drawerView: View) {
                 crimeRecyclerView.visibility = View.GONE
                 arrowImage.visibility = View.GONE
@@ -399,7 +396,7 @@ class CrimeListFragment : Fragment(),
              * be one of [.STATE_IDLE], [.STATE_DRAGGING] or [.STATE_SETTLING].
              */
             override fun onDrawerStateChanged(newState: Int) {
-                if (newState == 1){
+                if (newState == 1) {
                     crimeRecyclerView.visibility = View.VISIBLE
                     arrowImage.visibility = View.VISIBLE
                 }
@@ -419,7 +416,7 @@ class CrimeListFragment : Fragment(),
 
         mLocationManager = context?.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        Log.d("gggg","uooo");
+        Log.d("gggg", "uooo");
         checkLocation()
         zone = getZoneFromShared()
         cameraxHelper.zone = zone
@@ -448,7 +445,7 @@ class CrimeListFragment : Fragment(),
         Log.i("MENU", "${item}")
         return when (item.itemId) {
 
-            R.id.flash ->{
+            R.id.flash -> {
                 if (cameraxHelper.cameraInfo?.torchState?.value == TorchState.ON) {
                     cameraxHelper.cameraControl?.enableTorch(false)
                     item.setIcon(R.drawable.ic_flash_off)
@@ -458,27 +455,27 @@ class CrimeListFragment : Fragment(),
                 }
                 true
             }
-            R.id.zone_1 ->{
+            R.id.zone_1 -> {
                 zoneChange(1, menu, item)
                 true
             }
-            R.id.zone_2 ->{
+            R.id.zone_2 -> {
                 zoneChange(2, menu, item)
                 true
             }
-            R.id.zone_3 ->{
+            R.id.zone_3 -> {
                 zoneChange(3, menu, item)
                 true
             }
-            R.id.zone_4 ->{
+            R.id.zone_4 -> {
                 zoneChange(4, menu, item)
                 true
             }
-            R.id.zone_5 ->{
+            R.id.zone_5 -> {
                 zoneChange(5, menu, item)
                 true
             }
-            R.id.zone_6 ->{
+            R.id.zone_6 -> {
                 zoneChange(6, menu, item)
                 true
             }
@@ -488,43 +485,48 @@ class CrimeListFragment : Fragment(),
     }
 
 
+    val selectImageFromGalleryResult =
+        registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let {
+                //todo image picker
 
+                Log.i("Image_picker", uri.path.toString())
+                try {
+                    var path_to_image = context?.filesDir
+                    val inputStream: InputStream? =
+                        context?.getContentResolver()?.openInputStream(uri)
+                    val bOut2 = ByteArrayOutputStream()
+                    var bm = BitmapFactory.decodeStream(inputStream)
+                    bm = PicturesUtils.getResizedBitmap(bm, 720, 480)
+                    bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
+                    val mFile3 = File(
+                        path_to_image,
+                        UUID.randomUUID().toString() + "_" + ".jpg"
+                    )
+                    var fos2: FileOutputStream? = null
+                    fos2 = FileOutputStream(mFile3)
+                    Log.i("APP_LOG", mFile3.absolutePath)
+                    bm.compress(Bitmap.CompressFormat.JPEG, 100, fos2)
+                    val bOut = ByteArrayOutputStream()
+                    bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut)
+                    val img64 = Base64.encodeToString(bOut.toByteArray(), Base64.DEFAULT)
+                    ApiClient.POST_img64(
+                        img64,
+                        img_path = mFile3.path,
+                        img_plate_path = "None",
+                        zone = zone,
+                        long = 0.0,
+                        lat = 0.0
+                    )
+                } catch (e: IOException) {
+                    Log.e("APP_LOG", "Exception in photoCallback", e)
+                }
 
-
-    val selectImageFromGalleryResult = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            //todo image picker
-
-            Log.i("Image_picker", uri.path.toString())
-            try {
-                var path_to_image = context?.filesDir
-                val inputStream: InputStream? =
-                    context?.getContentResolver()?.openInputStream(uri)
-                val bOut2 = ByteArrayOutputStream()
-                var bm = BitmapFactory.decodeStream(inputStream)
-                bm = PicturesUtils.getResizedBitmap(bm, 720, 480)
-                bm.compress(Bitmap.CompressFormat.JPEG, 50, bOut2)
-                val mFile3 = File(
-                    path_to_image,
-                    UUID.randomUUID().toString() + "_" + ".jpg"
-                )
-                var fos2: FileOutputStream? = null
-                fos2 = FileOutputStream(mFile3)
-                Log.i("APP_LOG", mFile3.absolutePath)
-                bm.compress(Bitmap.CompressFormat.JPEG, 100, fos2)
-                val bOut = ByteArrayOutputStream()
-                bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut)
-                val img64 = Base64.encodeToString(bOut.toByteArray(), Base64.DEFAULT)
-                ApiClient.POST_img64(img64,img_path =  mFile3.path, img_plate_path = "None", zone = zone, long = 0.0, lat = 0.0)
-            } catch (e: IOException) {
-                Log.e("APP_LOG", "Exception in photoCallback", e)
             }
-
         }
-    }
 
     private fun pickPhoto() {
-          selectImageFromGalleryResult.launch("image/*")
+        selectImageFromGalleryResult.launch("image/*")
 
     }
 
@@ -537,8 +539,8 @@ class CrimeListFragment : Fragment(),
         crimeRecyclerView.adapter = adapter
     }
 
-    private inner class CrimeHolder(view: View)
-        : RecyclerView.ViewHolder(view), View.OnClickListener, View.OnLongClickListener {
+    private inner class CrimeHolder(view: View) : RecyclerView.ViewHolder(view),
+        View.OnClickListener, View.OnLongClickListener {
 
         private lateinit var crime: Crime
 
@@ -548,6 +550,7 @@ class CrimeListFragment : Fragment(),
         private val sendIcon: ImageView = itemView.findViewById(R.id.connection)
         private val foundIcon: ImageView = itemView.findViewById(R.id.not_found)
         private val infoDot: ImageView = itemView.findViewById(R.id.crime_info_dot)
+        private val workerIcon: ImageView = itemView.findViewById(R.id.worker_info_ic)
 
 
         init {
@@ -559,6 +562,9 @@ class CrimeListFragment : Fragment(),
         @SuppressLint("SimpleDateFormat")
         fun bind(crime: Crime) {
             this.crime = crime
+            if(crime.isSolved){
+                workerIcon.visibility = View.VISIBLE
+            }
             titleTextView.text = this.crime.title
             dateTextView.text = SimpleDateFormat("dd-MM-yyyy HH:mm").format(this.crime.date)
 //            var path_to_image = "/storage/emulated/0/${crime.img_path}"
@@ -581,8 +587,8 @@ class CrimeListFragment : Fragment(),
                     foundIcon.visibility = View.GONE
                 }
             }
-            if (crime.info.isEmpty()) {
-                infoDot.visibility = View.GONE
+            if (crime.info.count() >= 1 && crime.info != "null") {
+                infoDot.visibility = View.VISIBLE
             }
 
 
@@ -606,7 +612,7 @@ class CrimeListFragment : Fragment(),
                         )
                     toastImage.setImageBitmap(Bitmap.createBitmap(myBitmapSmall))
                     toastTextView.text = crime.title
-                    toast.setGravity(Gravity.CENTER, 0,0)
+                    toast.setGravity(Gravity.CENTER, 0, 0)
                     toast.duration = Toast.LENGTH_LONG
                     toast.view = toastLayout
                     toast.show()
@@ -617,8 +623,8 @@ class CrimeListFragment : Fragment(),
         }
     }
 
-    private inner class CrimeAdapter(var crimes: List<Crime>)
-        : RecyclerView.Adapter<CrimeHolder>() {
+    private inner class CrimeAdapter(var crimes: List<Crime>) :
+        RecyclerView.Adapter<CrimeHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int)
                 : CrimeHolder {
@@ -632,6 +638,7 @@ class CrimeListFragment : Fragment(),
             val crime = crimes[position]
             holder.bind(crime)
         }
+
         fun removeAt(position: Int) {
             notifyItemRemoved(position)
         }
@@ -639,7 +646,7 @@ class CrimeListFragment : Fragment(),
         override fun getItemCount() = crimes.size
     }
 
-    companion object{
+    companion object {
 
         fun newInstance(): CrimeListFragment {
             return CrimeListFragment()
@@ -688,17 +695,16 @@ class CrimeListFragment : Fragment(),
     }
 
 
-    suspend fun ResendCrime(crime: Crime){
+    suspend fun ResendCrime(crime: Crime) {
         //todo удалить строку, на которую нажал и коорая не отправилась
-        if(File(crime.img_path).exists() && crime.img_path != "") {
+        if (File(crime.img_path).exists() && crime.img_path != "") {
             val bOut2 = ByteArrayOutputStream()
             val bm = BitmapFactory.decodeFile(crime.img_path)
             bm.compress(Bitmap.CompressFormat.JPEG, 100, bOut2)
             img64_full = Base64.encodeToString(bOut2.toByteArray(), Base64.DEFAULT)
             crime.date = Calendar.getInstance().time
             ApiClient.POST_img64(img64_full.toString(), crime)
-        }
-        else{
+        } else {
             Log.e("RESEND CRIME", "not deleted")
         }
 
@@ -706,30 +712,29 @@ class CrimeListFragment : Fragment(),
     }
 
 
-
     private fun getIpFromShared(): String? {
-        val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val preferences: SharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(requireContext())
         val url = preferences.getString("ip", "")
         if (!url.equals("", ignoreCase = true)) {
             return url
-        }
-        else{
+        } else {
             return "http://95.182.74.37:1234/"
         }
     }
 
     private fun getZoneFromShared(): Int {
-        val preferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val preferences: SharedPreferences =
+            PreferenceManager.getDefaultSharedPreferences(requireContext())
         val url = preferences.getString("zone", "1")
         if (!url.equals("", ignoreCase = true)) {
             return url!!.toInt()
-        }
-        else{
+        } else {
             return 1
         }
     }
 
-    fun zoneChange(zon: Int, menu: Menu, item: MenuItem){
+    fun zoneChange(zon: Int, menu: Menu, item: MenuItem) {
         cameraxHelper.zone = zon
         zone = zon
         val preferences: SharedPreferences =
@@ -740,24 +745,32 @@ class CrimeListFragment : Fragment(),
 
         selectMenu(zon, menu)
 
-}
-    private fun selectMenu(zon: Int, menu: Menu){
-        val listOfMenu = listOf(R.id.zone_1 ,R.id.zone_2, R.id.zone_3, R.id.zone_4, R.id.zone_5, R.id.zone_6)
-        val listOfIcon = listOf(R.drawable.ic_first_zone,R.drawable.ic_second_zone,R.drawable.ic_third_zone,R.drawable.ic_firth_zone,R.drawable.ic_fifth_zone,R.drawable.ic_sixth_zone)
+    }
+
+    private fun selectMenu(zon: Int, menu: Menu) {
+        val listOfMenu =
+            listOf(R.id.zone_1, R.id.zone_2, R.id.zone_3, R.id.zone_4, R.id.zone_5, R.id.zone_6)
+        val listOfIcon = listOf(
+            R.drawable.ic_first_zone,
+            R.drawable.ic_second_zone,
+            R.drawable.ic_third_zone,
+            R.drawable.ic_firth_zone,
+            R.drawable.ic_fifth_zone,
+            R.drawable.ic_sixth_zone
+        )
         var count = 0
-        for (zone in listOfMenu){
+        for (zone in listOfMenu) {
             count++
-            if(count == zon){
-                menu.findItem(R.id.zone_show).setIcon(listOfIcon[zon-1])
-                menu.findItem(listOfMenu[zon-1]).isChecked = true
-            }else {
+            if (count == zon) {
+                menu.findItem(R.id.zone_show).setIcon(listOfIcon[zon - 1])
+                menu.findItem(listOfMenu[zon - 1]).isChecked = true
+            } else {
                 menu.findItem(zone).isChecked = false
             }
         }
     }
 
     override fun onConnected(p0: Bundle?) {
-
 
 
         if (androidx.core.app.ActivityCompat.checkSelfPermission(
@@ -817,11 +830,13 @@ class CrimeListFragment : Fragment(),
                 Manifest.permission.ACCESS_COARSE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Toast.makeText(requireContext(), "Ищу местоположение",Toast.LENGTH_SHORT).show()
+            Toast.makeText(requireContext(), "Ищу местоположение", Toast.LENGTH_SHORT).show()
             return
         }
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
-            mLocationRequest, this)
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+            mGoogleApiClient,
+            mLocationRequest, this
+        )
         Log.d("GPS", "Нашел местоположение")
     }
 

@@ -24,7 +24,7 @@
                                             <option name="values">
                                               <map>
                                                 <entry key="color" value="000000" />
-                                                <entry key="imagePath" value="C:\Users\Admin\AppData\Local\Temp\baseline_keyboard_arrow_up_24.xml" />
+                                                <entry key="imagePath" value="C:\Users\Admin\AppData\Local\Temp\baseline_work_24.xml" />
                                                 <entry key="opacityPercent" value="80" />
                                                 <entry key="trimmed" value="true" />
                                               </map>
@@ -37,7 +37,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="url" value="file:/$PROJECT_DIR$/../../SDK/icons/material/materialicons/keyboard_arrow_up/baseline_keyboard_arrow_up_24.xml" />
+                                                <entry key="url" value="file:/$PROJECT_DIR$/../../SDK/icons/material/materialicons/work/baseline_work_24.xml" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -92,9 +92,9 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="outputName" value="ic_arrow" />
+                                      <entry key="outputName" value="ic_worker" />
                                       <entry key="theme" value="CUSTOM" />
-                                      <entry key="themeColor" value="666363" />
+                                      <entry key="themeColor" value="ac6a6a" />
                                     </map>
                                   </option>
                                 </PersistentState>

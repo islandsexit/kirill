@@ -38,7 +38,6 @@ import java.util.*
 class CrimeFragment : Fragment(){
 
 
-    private lateinit var infoButton: Button
 
 
     var isEdit = false
@@ -50,11 +49,13 @@ class CrimeFragment : Fragment(){
     private lateinit var iconSend: ImageView
     private lateinit var textFound: TextView
     private lateinit var textSend: TextView
+    private lateinit var workDetails: TextView
     private lateinit var longlat: TextView
 
     private lateinit var resend_fragment_activity: Button
     private lateinit var photoView: ImageView
     private lateinit var photoViewSmall: ImageView
+
 
     var lastEvent: FloatArray? = null
     var d = 0f
@@ -91,14 +92,7 @@ class CrimeFragment : Fragment(){
         val view = inflater.inflate(R.layout.fragment_crime, container, false)
 
         titleField = view.findViewById(R.id.crime_title) as EditTextWithDel
-        infoButton = view.findViewById(R.id.info_button)
-        infoButton.setOnClickListener {
-            val dialog = AlertDialog.Builder(requireContext())
-            dialog.setTitle("Информация")
-                .setMessage(crime.info)
-                .setNegativeButton("Выйти") { paramDialogInterface, paramInt -> }
-            dialog.show()
-        }
+        workDetails = view.findViewById(R.id.crime_det)
 
         longlat = view.findViewById(R.id.longlat) as TextView
 
@@ -252,8 +246,8 @@ class CrimeFragment : Fragment(){
 
 
     private fun updateUI() {
-        if(crime.info.isEmpty()){
-            infoButton.visibility = View.GONE
+        if (crime.info.count() >= 1 && crime.info != "null"){
+            workDetails.text = crime.info
         }
         titleField.setText(crime.title)
         if(File(crime.img_path).exists() && crime.img_path != ""){
@@ -265,7 +259,7 @@ class CrimeFragment : Fragment(){
                         crime.Rect?.get(1)?.toInt()!!,
                         crime.Rect?.get(2)?.toInt()!!, crime.Rect?.get(3)?.toInt()!!
                     )
-                photoViewSmall.setImageBitmap(Bitmap.createBitmap(myBitmapSmall))
+                photoViewSmall.setImageBitmap(Bitmap.createScaledBitmap(myBitmapSmall, (myBitmapSmall.width*2.5).toInt(), (myBitmapSmall.height*2.5).toInt(), false))
                 photoViewSmall.visibility = View.VISIBLE
 
             }else{

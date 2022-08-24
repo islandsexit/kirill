@@ -1,13 +1,20 @@
-package ru.vigtech. android.vigpark.api
+package ru.vigtech.android.vigpark.api
 
+import android.annotation.SuppressLint
+import android.content.Context
+import android.os.Handler
 import android.util.Log
+import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import ru.vigtech.android.vigpark.Auth
+import ru.vigtech.android.vigpark.MainActivity
 import ru.vigtech.android.vigpark.api.PostInterface
 import ru.vigtech.android.vigpark.api.PostPhoto
 import ru.vigtech.android.vigpark.database.Crime
@@ -15,15 +22,24 @@ import ru.vigtech.android.vigpark.database.CrimeRepository
 import java.util.concurrent.TimeUnit
 
 
+
+//@SuppressLint("StaticFieldLeak")
 object ApiClient {
     var baseUrl = "http://95.182.74.37:1234/"
     var retrofit: Retrofit = getRetroInstance(baseUrl)
 
 
+    var authentication : Auth? = null
+
+    fun buidAuthModule(context: Context){
+        if(authentication == null){
+            authentication = Auth(context)
+        }
+
+    }
 
 
-
-        private fun getRetroInstance(baseUrl: String): Retrofit {
+    private fun getRetroInstance(baseUrl: String): Retrofit {
             val okHttpClient: OkHttpClient = OkHttpClient.Builder()
                 .connectTimeout(1, TimeUnit.MINUTES)
                 .readTimeout(30, TimeUnit.SECONDS)
@@ -72,7 +88,12 @@ object ApiClient {
                             }
 
                             CrimeRepository.get().updateCrime(crime)
-                        } else {
+                        } else if (RESULT == "INVALID"){
+                            crime.title = "Ошибка лицензирований"
+                            crime.send = true
+                            crime.found = true
+                            crime.info = "Данное программное обеспечение защищено правом пользования. Произошла ошибка в ключе лицензирования при проверк на сервере. Просьба использовать программу в соответсвии договра пользования."
+                        }else{
                             crime.title = "Не распознан номер"
                             crime.send = true
                             crime.found = false
@@ -136,7 +157,12 @@ object ApiClient {
                                 crime.Rect = Rect
                             }
                             CrimeRepository.get().updateCrime(crime)
-                        } else {
+                        } else if (RESULT == "INVALID"){
+                            crime.title = "Ошибка лицензирования"
+                            crime.send = true
+                            crime.found = true
+                            crime.info = "Данное программное обеспечение защищено правом пользования. Произошла ошибка в ключе лицензирования при проверк на сервере. Просьба использовать программу в соответсвии договра пользования."
+                        }else {
                             crime.send = true
                             crime.title = "Не распознан номер"
                             crime.found = false
@@ -176,7 +202,8 @@ object ApiClient {
         val new_plate = crime.title
         crime.title = "Отправка на сервер"
         CrimeRepository.get().updateCrime(crime)
-        val call: Call<PostPhoto> = post_api.postPlateEdited(img64, crime.title,crime.Zone,crime.lon, crime.lat)
+        val call: Call<PostPhoto> =
+            post_api.postPlateEdited(img64, crime.title, crime.Zone, crime.lon, crime.lat)
         call.enqueue(object : Callback<PostPhoto?> {
             override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
                 try {
@@ -187,23 +214,36 @@ object ApiClient {
                         val RESULT = POST_PHOTO?.RESULT.toString()
                         val msg = POST_PHOTO?.palteNumber.toString()
                         val info = POST_PHOTO?.info.toString()
-                        Log.w("POST_img64_with_edited_text", "onResponse| response: Result: $RESULT msg: $msg")
+                        val Rect = POST_PHOTO?.Rect
+                        Log.w(
+                            "POST_img64_with_edited_text",
+                            "onResponse| response: Result: $RESULT msg: $msg"
+                        )
                         if (RESULT == "SUCCESS") {
                             crime.send = true
                             crime.found = true
-                            if(crime.title == ""){
+                            if (crime.title == "") {
                                 crime.title = msg
-                            }else{
+                            } else {
                                 crime.title = new_plate
                             }
+                            if ((crime.Rect?.size ?: 1) != 4) {
+                                crime.Rect = Rect
+                            }
+                            crime.info = info
                             CrimeRepository.get().updateCrime(crime)
+                        } else if (RESULT == "INVALID") {
+                            crime.title = "Ошибка лицензирования"
+                            crime.send = true
+                            crime.found = true
+                            crime.info =
+                                "Данное программное обеспечение защищено правом пользования. Произошла ошибка в ключе лицензирования при проверк на сервере. Просьба использовать программу в соответсвии договра пользования."
                         } else {
-                            if(crime.title == "") {
+                            if (crime.title == "") {
                                 crime.send = true
                                 crime.found = false
                                 crime.title = "Не распознан номер"
-                            }
-                            else{
+                            } else {
                                 crime.send = true
                                 crime.found = false
                                 crime.title = new_plate
@@ -212,9 +252,9 @@ object ApiClient {
                         }
                     } else {
                         crime.send = false
-                        if(crime.title == "") {
-                            crime.title  = "Сервер недоступен"
-                        }else{
+                        if (crime.title == "") {
+                            crime.title = "Сервер недоступен"
+                        } else {
                             crime.title = new_plate
                         }
                         crime.found = false
@@ -226,9 +266,9 @@ object ApiClient {
                 } catch (e: Exception) {
                     Log.e("POST_img64_with_edited_text", "onResponse | exception", e)
                     crime.send = false
-                    if(crime.title == "") {
-                        crime.title  = "Сервер недоступен"
-                    }else{
+                    if (crime.title == "") {
+                        crime.title = "Сервер недоступен"
+                    } else {
                         crime.title = new_plate
                     }
                     crime.found = false
@@ -241,15 +281,61 @@ object ApiClient {
                 Log.e("POST_img64_with_edited_text", "onFailure", t)
                 crime.send = false
                 crime.found = false
-                if(crime.title == "") {
-                    crime.title  = "Сервер недоступен"
-                }else{
+                if (crime.title == "") {
+                    crime.title = "Сервер недоступен"
+                } else {
                     crime.title = new_plate
                 }
                 CrimeRepository.get().updateCrime(crime)
 
             }
         })
+    }
+
+        fun postAuthKeys() {
+            val post_api: PostInterface = retrofit.create(PostInterface::class.java)
+            val call: Call<PostPhoto> = post_api.postPlate("testKey",0, 0.0, 0.0)
+            call.enqueue(object : Callback<PostPhoto?> {
+                override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
+                    try {
+                        val statusCode = response.code()
+                        if (statusCode == 200) {
+                            val POST_PHOTO: PostPhoto? = response.body()
+//                            val data_get: List<PostPhoto> = PostPhoto.getResponse()
+                            val RESULT = POST_PHOTO?.RESULT.toString()
+                            Log.w("POST_img64_with_edited_text", "onResponse| response: Result: $RESULT")
+                            if (RESULT == "SUCCESS") {
+                                authentication?.authSuccess?.value = true
+                            }else if (RESULT == "INVALID"){
+                                authentication?.authSuccess?.value = false
+                                CoroutineScope(Dispatchers.Main).launch{
+
+                                }
+
+
+
+                        } else{
+                                authentication?.authSuccess?.value = false
+                            }
+                        } else {
+                            authentication?.authSuccess?.value = false
+                        }
+                    } catch (e: Exception) {
+                        Log.e("POST_img64_with_edited_text", "onResponse | exception", e)
+                        authentication?.authSuccess?.postValue(false)
+
+
+
+
+                    }
+                }
+
+                override fun onFailure(call: Call<PostPhoto?>, t: Throwable) {
+                    Log.e("POST_img64_with_edited_text", "onFailure", t)
+                    authentication?.authSuccess?.value = false
+
+                }
+            })
 
 
     }
