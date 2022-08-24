@@ -29,14 +29,9 @@ object ApiClient {
     var retrofit: Retrofit = getRetroInstance(baseUrl)
 
 
-    var authentication : Auth? = null
 
-    fun buidAuthModule(context: Context){
-        if(authentication == null){
-            authentication = Auth(context)
-        }
 
-    }
+
 
 
     private fun getRetroInstance(baseUrl: String): Retrofit {
@@ -292,7 +287,7 @@ object ApiClient {
         })
     }
 
-        fun postAuthKeys() {
+        fun postAuthKeys(authModel:Auth) {
             val post_api: PostInterface = retrofit.create(PostInterface::class.java)
             val call: Call<PostPhoto> = post_api.postPlate("testKey",0, 0.0, 0.0)
             call.enqueue(object : Callback<PostPhoto?> {
@@ -305,24 +300,34 @@ object ApiClient {
                             val RESULT = POST_PHOTO?.RESULT.toString()
                             Log.w("POST_img64_with_edited_text", "onResponse| response: Result: $RESULT")
                             if (RESULT == "SUCCESS") {
-                                authentication?.authSuccess?.value = true
+                                authModel.authSuccess.postValue(3)
                             }else if (RESULT == "INVALID"){
-                                authentication?.authSuccess?.value = false
-                                CoroutineScope(Dispatchers.Main).launch{
-
-                                }
 
 
 
                         } else{
-                                authentication?.authSuccess?.value = false
+                            when(authModel.authSuccess.value){
+                                1-> authModel.authSuccess.postValue(2)
+                                2-> authModel.authSuccess.postValue(1)
+                            }
+
+//                            if(authModel.authSuccess.value == 2){
+//                                authModel.authSuccess.postValue(1)
+//                            }
                             }
                         } else {
-                            authentication?.authSuccess?.value = false
+                            when(authModel.authSuccess.value){
+                                1-> authModel.authSuccess.postValue(2)
+                                2-> authModel.authSuccess.postValue(1)
+                            }
+
                         }
                     } catch (e: Exception) {
                         Log.e("POST_img64_with_edited_text", "onResponse | exception", e)
-                        authentication?.authSuccess?.postValue(false)
+                        when(authModel.authSuccess.value){
+                            1-> authModel.authSuccess.postValue(2)
+                            2-> authModel.authSuccess.postValue(1)
+                        }
 
 
 
@@ -332,7 +337,10 @@ object ApiClient {
 
                 override fun onFailure(call: Call<PostPhoto?>, t: Throwable) {
                     Log.e("POST_img64_with_edited_text", "onFailure", t)
-                    authentication?.authSuccess?.value = false
+                    when(authModel.authSuccess.value){
+                        1-> authModel.authSuccess.postValue(2)
+                        2-> authModel.authSuccess.postValue(1)
+                    }
 
                 }
             })

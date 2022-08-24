@@ -49,19 +49,6 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
 
 
 //        ApiClient.buidAuthModule(this)
-//        val viewModel = ViewModelProvider(this).get(Auth::class.java)
-//
-//        val authObserver = Observer<Boolean>{
-//            if (it){
-//
-//            }
-//        }
-
-
-
-        alertKey()
-
-
 
 
         if (Build.VERSION.SDK_INT >= 30) {
@@ -102,38 +89,7 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
 
     }
 
-    private fun alertKey() {
-        if (!ApiClient.authentication?.authSuccess?.value!!) {
-            val alert = AlertDialog.Builder(this)
-            val edittext = EditText(this)
-            edittext.hint = SpannableStringBuilder("xxx-xxx-xxx-xxx");
-            alert.setMessage("Программное обеспечение защищено")
-            alert.setTitle("Введите лицензионный ключ")
 
-            alert.setView(edittext)
-
-            alert.setPositiveButton(
-                "Ок"
-            ) { dialog, whichButton ->
-                ApiClient.authentication?.secureKey = edittext.text.toString()
-
-
-
-                ApiClient.postAuthKeys()
-
-                Log.i("AUUUUUUUUCTHHHHHH", "Api ${ApiClient.authentication?.authSuccess?.value!!}")
-
-            }
-
-            alert.setNegativeButton(
-                "У меня нет ключа"
-            ) { dialog, whichButton ->
-                this.finish()
-            }
-            alert.setCancelable(false)
-            alert.show()
-        }
-    }
 
     override fun onCrimeSelected(crimeId: UUID) {
         val fragment = CrimeFragment.newInstance(crimeId)

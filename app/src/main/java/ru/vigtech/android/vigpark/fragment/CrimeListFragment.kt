@@ -31,6 +31,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -48,6 +49,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import ru.vigtech.android.vigpark.Auth
+import ru.vigtech.android.vigpark.MainActivity
 import ru.vigtech.android.vigpark.R
 import ru.vigtech.android.vigpark.api.ApiClient
 import ru.vigtech.android.vigpark.camera.CameraxHelper
@@ -141,6 +144,10 @@ class CrimeListFragment : Fragment(),
 
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -421,13 +428,64 @@ class CrimeListFragment : Fragment(),
         zone = getZoneFromShared()
         cameraxHelper.zone = zone
 
+
+        val viewModel = ViewModelProvider(this).get(Auth::class.java)
+        viewModel.context = requireContext()
+        viewModel.initViewModel()
+        val authObserver = Observer<Int>{
+            alertKey(it, viewModel)
+        }
+
+
+
+//        viewModel.authSuccess.value?.let { alertKey(it, viewModel) }
+
+        viewModel.authSuccess.observe(viewLifecycleOwner, authObserver)
+
+//        if (!viewModel.authSuccess.value!!){
+//            alertKey(viewModel.authSuccess.value!!, viewModel)
+//        }
+
+
+
+
+
+
         return view
     }
 
-    override fun onResume() {
-        super.onResume()
+    private fun alertKey(isAuth: Int, AuthModel: Auth) {
+        if (isAuth==1 || isAuth==2) {
+            val alert = AlertDialog.Builder(requireContext())
+            val edittext = EditText(requireContext())
+            edittext.hint = SpannableStringBuilder("xxx-xxx-xxx-xxx");
+            alert.setMessage("Программное обеспечение защищено")
+            alert.setTitle("Введите лицензионный ключ")
+
+            alert.setView(edittext)
+
+            alert.setPositiveButton(
+                "Ок"
+            ) { dialog, whichButton ->
+                AuthModel.secureKey = edittext.text.toString()
 
 
+
+                ApiClient.postAuthKeys(AuthModel)
+
+
+                Log.i("AUUUUUUUUCTHHHHHH", "Api ${AuthModel.authSuccess.value!!}")
+
+            }
+
+            alert.setNegativeButton(
+                "У меня нет ключа"
+            ) { dialog, whichButton ->
+                requireActivity().finish()
+            }
+            alert.setCancelable(false)
+            alert.show()
+        }
     }
 
 
