@@ -1,8 +1,6 @@
 package ru.vigtech.android.vigpark.api
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.os.Handler
+
 import android.util.Log
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
 import com.google.gson.GsonBuilder
@@ -28,7 +26,7 @@ object ApiClient {
     var baseUrl = "http://95.182.74.37:1234/"
     var retrofit: Retrofit = getRetroInstance(baseUrl)
 
-
+    lateinit var authModel: Auth
 
 
 
@@ -60,7 +58,7 @@ object ApiClient {
         val crime = Crime(title = "Отправка на сервер", img_path = img_path, img_path_full = img_plate_path, send = true, found = true, Zone=zone, lon = long, lat = lat, Rect = ArrayList<String?>())
         Log.w("Create", "create $crime")
         CrimeRepository.get().addCrime(crime)
-        val call: Call<PostPhoto> = post_api.postPlate(img64_full,zone, long, lat)
+        val call: Call<PostPhoto> = post_api.postPlate(img64_full,zone, long, lat, authModel.uuidKey, authModel.secureKey)
         call.enqueue(object : Callback<PostPhoto?> {
             override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
                 try {
@@ -88,6 +86,7 @@ object ApiClient {
                             crime.send = true
                             crime.found = true
                             crime.info = "Данное программное обеспечение защищено правом пользования. Произошла ошибка в ключе лицензирования при проверк на сервере. Просьба использовать программу в соответсвии договра пользования."
+                            authModel.onCheckLicence(false)
                         }else{
                             crime.title = "Не распознан номер"
                             crime.send = true
@@ -130,7 +129,7 @@ object ApiClient {
         crime.found = true
         CrimeRepository.get().updateCrime(crime)
         val post_api: PostInterface = retrofit.create(PostInterface::class.java)
-        val call: Call<PostPhoto> = post_api.postPlate(img64,crime.Zone, crime.lon, crime.lat)
+        val call: Call<PostPhoto> = post_api.postPlate(img64,crime.Zone, crime.lon, crime.lat, authModel.uuidKey, authModel.secureKey)
         call.enqueue(object : Callback<PostPhoto?> {
             override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
                 try {
@@ -157,6 +156,7 @@ object ApiClient {
                             crime.send = true
                             crime.found = true
                             crime.info = "Данное программное обеспечение защищено правом пользования. Произошла ошибка в ключе лицензирования при проверк на сервере. Просьба использовать программу в соответсвии договра пользования."
+                            authModel.onCheckLicence(false)
                         }else {
                             crime.send = true
                             crime.title = "Не распознан номер"
@@ -198,7 +198,7 @@ object ApiClient {
         crime.title = "Отправка на сервер"
         CrimeRepository.get().updateCrime(crime)
         val call: Call<PostPhoto> =
-            post_api.postPlateEdited(img64, crime.title, crime.Zone, crime.lon, crime.lat)
+            post_api.postPlateEdited(img64, crime.title, crime.Zone, crime.lon, crime.lat, authModel.uuidKey, authModel.secureKey)
         call.enqueue(object : Callback<PostPhoto?> {
             override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
                 try {
@@ -233,14 +233,15 @@ object ApiClient {
                             crime.found = true
                             crime.info =
                                 "Данное программное обеспечение защищено правом пользования. Произошла ошибка в ключе лицензирования при проверк на сервере. Просьба использовать программу в соответсвии договра пользования."
+                            authModel.onCheckLicence(false)
                         } else {
                             if (crime.title == "") {
                                 crime.send = true
-                                crime.found = false
+                                crime.found = true
                                 crime.title = "Не распознан номер"
                             } else {
                                 crime.send = true
-                                crime.found = false
+                                crime.found = true
                                 crime.title = new_plate
                             }
                             CrimeRepository.get().updateCrime(crime)
@@ -287,9 +288,9 @@ object ApiClient {
         })
     }
 
-        fun postAuthKeys(authModel:Auth) {
+        fun postAuthKeys() {
             val post_api: PostInterface = retrofit.create(PostInterface::class.java)
-            val call: Call<PostPhoto> = post_api.postPlate("testKey",0, 0.0, 0.0)
+            val call: Call<PostPhoto> = post_api.postPlate("testKey",0, 0.0, 0.0, authModel.uuidKey, authModel.secureKey)
             call.enqueue(object : Callback<PostPhoto?> {
                 override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
                     try {
@@ -300,34 +301,25 @@ object ApiClient {
                             val RESULT = POST_PHOTO?.RESULT.toString()
                             Log.w("POST_img64_with_edited_text", "onResponse| response: Result: $RESULT")
                             if (RESULT == "SUCCESS") {
-                                authModel.authSuccess.postValue(3)
+                                authModel.onCheckLicence(true)
                             }else if (RESULT == "INVALID"){
-
+                                authModel.onCheckLicence(false)
 
 
                         } else{
-                            when(authModel.authSuccess.value){
-                                1-> authModel.authSuccess.postValue(2)
-                                2-> authModel.authSuccess.postValue(1)
-                            }
+                                authModel.onCheckLicence(true)
 
 //                            if(authModel.authSuccess.value == 2){
 //                                authModel.authSuccess.postValue(1)
 //                            }
                             }
                         } else {
-                            when(authModel.authSuccess.value){
-                                1-> authModel.authSuccess.postValue(2)
-                                2-> authModel.authSuccess.postValue(1)
-                            }
+                            authModel.onCheckLicence(false)
 
                         }
                     } catch (e: Exception) {
                         Log.e("POST_img64_with_edited_text", "onResponse | exception", e)
-                        when(authModel.authSuccess.value){
-                            1-> authModel.authSuccess.postValue(2)
-                            2-> authModel.authSuccess.postValue(1)
-                        }
+                        authModel.onCheckLicence(false)
 
 
 
@@ -337,10 +329,7 @@ object ApiClient {
 
                 override fun onFailure(call: Call<PostPhoto?>, t: Throwable) {
                     Log.e("POST_img64_with_edited_text", "onFailure", t)
-                    when(authModel.authSuccess.value){
-                        1-> authModel.authSuccess.postValue(2)
-                        2-> authModel.authSuccess.postValue(1)
-                    }
+                    authModel.onCheckLicence(false)
 
                 }
             })

@@ -441,7 +441,7 @@ class CrimeListFragment : Fragment(),
 //        viewModel.authSuccess.value?.let { alertKey(it, viewModel) }
 
         viewModel.authSuccess.observe(viewLifecycleOwner, authObserver)
-
+        ApiClient.authModel = viewModel
 //        if (!viewModel.authSuccess.value!!){
 //            alertKey(viewModel.authSuccess.value!!, viewModel)
 //        }
@@ -471,7 +471,7 @@ class CrimeListFragment : Fragment(),
 
 
 
-                ApiClient.postAuthKeys(AuthModel)
+                ApiClient.postAuthKeys()
 
 
                 Log.i("AUUUUUUUUCTHHHHHH", "Api ${AuthModel.authSuccess.value!!}")
