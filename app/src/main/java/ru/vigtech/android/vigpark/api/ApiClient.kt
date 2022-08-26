@@ -217,9 +217,10 @@ object ApiClient {
         crime.found = true
         val new_plate = crime.title
         crime.title = "Отправка на сервер"
+        crime.info = ""
         CrimeRepository.get().updateCrime(crime)
         val call: Call<PostPhoto> =
-            post_api.postPlateEdited(img64, crime.title, crime.Zone, crime.lon, crime.lat, authModel.uuidKey, authModel.secureKey)
+            post_api.postPlateEdited(img64, new_plate, crime.Zone, crime.lon, crime.lat, authModel.uuidKey, authModel.secureKey)
         call.enqueue(object : Callback<PostPhoto?> {
             override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
                 try {
