@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:src="@drawable/ic_info_dot"
+        android:src="@drawable/ic_worker"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toEndOf="@id/worker_info_ic"
         app:layout_constraintTop_toTopOf="parent"

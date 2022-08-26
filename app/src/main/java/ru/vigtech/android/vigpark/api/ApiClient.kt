@@ -87,6 +87,14 @@ object ApiClient {
                             crime.found = true
                             crime.info = "Данное программное обеспечение защищено правом пользования. Произошла ошибка в ключе лицензирования при проверк на сервере. Просьба использовать программу в соответсвии договра пользования."
                             authModel.onCheckLicence(false)
+                            CrimeRepository.get().updateCrime(crime)
+                        }
+                        else if (RESULT == "WARNING"){
+                            crime.title = "Ошибка на сервере"
+                            crime.send = true
+                            crime.found = true
+                            crime.info = "Произошла ошибка на стороне сервера. Пожалуйста позвоните системному администратору и уведомите его. До звонка прошу не продолжать фиксирование."
+                            CrimeRepository.get().updateCrime(crime)
                         }else{
                             crime.title = "Не распознан номер"
                             crime.send = true
@@ -127,6 +135,7 @@ object ApiClient {
         crime.title = "Отправка на сервер"
         crime.send = true
         crime.found = true
+        crime.info = ""
         CrimeRepository.get().updateCrime(crime)
         val post_api: PostInterface = retrofit.create(PostInterface::class.java)
         val call: Call<PostPhoto> = post_api.postPlate(img64,crime.Zone, crime.lon, crime.lat, authModel.uuidKey, authModel.secureKey)
@@ -157,21 +166,31 @@ object ApiClient {
                             crime.found = true
                             crime.info = "Данное программное обеспечение защищено правом пользования. Произошла ошибка в ключе лицензирования при проверк на сервере. Просьба использовать программу в соответсвии договра пользования."
                             authModel.onCheckLicence(false)
+                            CrimeRepository.get().updateCrime(crime)
+                        }else if (RESULT == "WARNING"){
+                            crime.title = "Ошибка на сервере"
+                            crime.send = true
+                            crime.found = true
+                            crime.info = "Произошла ошибка на стороне сервера. Пожалуйста позвоните системному администратору и уведомите его. До звонка прошу не продолжать фиксирование."
+                            CrimeRepository.get().updateCrime(crime)
                         }else {
                             crime.send = true
                             crime.title = "Не распознан номер"
                             crime.found = false
+                            crime.info = "null"
                             CrimeRepository.get().updateCrime(crime)
                         }
                     } else {
                         Log.e("POST", "onResponse | status: $statusCode")
                         crime.send = false
                         crime.title  = "Сервер недоступен"
+                        crime.info = ""
                         CrimeRepository.get().updateCrime(crime)
                     }
                 } catch (e: Exception) {
                     Log.e("POST", "onResponse | exception", e)
                     crime.send = false
+                    crime.info=""
                     crime.title  = "Сервер недоступен"
                     CrimeRepository.get().updateCrime(crime)
 
@@ -181,6 +200,8 @@ object ApiClient {
             override fun onFailure(call: Call<PostPhoto?>, t: Throwable) {
                 Log.e("POST", "onFailure", t)
                 crime.send = false
+                crime.title = "Сервер недоступен"
+                crime.info = ""
                 CrimeRepository.get().updateCrime(crime)
 
             }
@@ -234,14 +255,23 @@ object ApiClient {
                             crime.info =
                                 "Данное программное обеспечение защищено правом пользования. Произошла ошибка в ключе лицензирования при проверк на сервере. Просьба использовать программу в соответсвии договра пользования."
                             authModel.onCheckLicence(false)
+                            CrimeRepository.get().updateCrime(crime)
+                        }else if (RESULT == "WARNING"){
+                            crime.title = "Ошибка на сервере"
+                            crime.send = true
+                            crime.found = true
+                            crime.info = "Произошла ошибка на стороне сервера. Пожалуйста позвоните системному администратору и уведомите его. До звонка прошу не продолжать фиксирование."
+                            CrimeRepository.get().updateCrime(crime)
                         } else {
                             if (crime.title == "") {
                                 crime.send = true
+                                crime.info = ""
                                 crime.found = true
                                 crime.title = "Не распознан номер"
                             } else {
                                 crime.send = true
                                 crime.found = true
+                                crime.info = ""
                                 crime.title = new_plate
                             }
                             CrimeRepository.get().updateCrime(crime)
@@ -254,7 +284,7 @@ object ApiClient {
                             crime.title = new_plate
                         }
                         crime.found = false
-
+                        crime.info = ""
                         CrimeRepository.get().updateCrime(crime)
                         Log.e("POST_img64_with_edited_text", "onResponse | status: $statusCode")
 
@@ -267,6 +297,7 @@ object ApiClient {
                     } else {
                         crime.title = new_plate
                     }
+                    crime.info = ""
                     crime.found = false
                     CrimeRepository.get().updateCrime(crime)
 
@@ -282,6 +313,7 @@ object ApiClient {
                 } else {
                     crime.title = new_plate
                 }
+                crime.info = ""
                 CrimeRepository.get().updateCrime(crime)
 
             }

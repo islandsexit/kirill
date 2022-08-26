@@ -72,7 +72,8 @@ class Auth: ViewModel(){
                     true -> authSuccess.savePreferences(3)
                     false -> when(authSuccess.value){
                         1-> authSuccess.savePreferences(2)
-                        2-> authSuccess.savePreferences(1)
+                        2, 3-> authSuccess.savePreferences(1)
+
                     }
                 }
 

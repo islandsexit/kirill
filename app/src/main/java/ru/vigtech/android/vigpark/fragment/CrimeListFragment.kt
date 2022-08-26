@@ -455,6 +455,7 @@ class CrimeListFragment : Fragment(),
     }
 
     private fun alertKey(isAuth: Int, AuthModel: Auth) {
+        Log.i("AAAAAAAAAAAAAAAAAA", "$isAuth")
         if (isAuth==1 || isAuth==2) {
             val alert = AlertDialog.Builder(requireContext())
             val edittext = EditText(requireContext())
@@ -777,7 +778,7 @@ class CrimeListFragment : Fragment(),
         if (!url.equals("", ignoreCase = true)) {
             return url
         } else {
-            return "http://95.182.74.37:1234/"
+            return "http://192.168.48.91:1234/"
         }
     }
 
