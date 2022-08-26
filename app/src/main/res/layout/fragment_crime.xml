@@ -132,7 +132,7 @@
         android:layout_height="wrap_content"
         tools:text="Добрый Николай Александрович"
         android:textAlignment="center"
-        android:textSize="15sp"
+        android:textSize="20sp"
         android:textColor="#000"/>
 
 
