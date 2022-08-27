@@ -276,42 +276,9 @@ class CrimeListFragment : Fragment(),
 
         navView.setNavigationItemSelectedListener { menuItem ->
             when (menuItem.itemId) {
-                R.id.ip_configuration -> {
-                    val alert = AlertDialog.Builder(requireContext())
-                    val edittext = EditText(requireContext())
-                    edittext.text = SpannableStringBuilder(getIpFromShared());
-                    alert.setMessage(R.string.ip_сщташпгкфешщт)
-                    alert.setTitle("Сервер")
-
-                    alert.setView(edittext)
-
-                    alert.setPositiveButton(
-                        "Готово"
-                    ) { dialog, whichButton -> //What ever you want to do with the value
-                        val ip = edittext.text.toString()
-                        val preferences: SharedPreferences =
-                            PreferenceManager.getDefaultSharedPreferences(requireContext())
-                        val editor = preferences.edit()
-                        editor.putString("ip", ip)
-                        editor.apply()
-                        ApiClient.reBuildRetrofit(ip)
-                    }
-
-                    alert.setNegativeButton(
-                        "Отмена"
-                    ) { dialog, whichButton ->
-                    }
-
-                    alert.show()
 
 
-                    true
-                }
 
-                R.id.new_crime -> {
-                    pickPhoto()
-                    true
-                }
 
                 R.id.delete_crimes -> {
                     val builder1: AlertDialog.Builder = AlertDialog.Builder(requireContext())
@@ -778,7 +745,7 @@ class CrimeListFragment : Fragment(),
         if (!url.equals("", ignoreCase = true)) {
             return url
         } else {
-            return "http://192.168.48.91:1234/"
+            return "http://95.182.74.37:1234/"
         }
     }
 

@@ -50,7 +50,7 @@ class CrimeFragment : Fragment(){
     private lateinit var textFound: TextView
     private lateinit var textSend: TextView
     private lateinit var workDetails: TextView
-    private lateinit var longlat: TextView
+//    private lateinit var longlat: TextView
 
     private lateinit var resend_fragment_activity: Button
     private lateinit var photoView: ImageView
@@ -94,7 +94,7 @@ class CrimeFragment : Fragment(){
         titleField = view.findViewById(R.id.crime_title) as EditTextWithDel
         workDetails = view.findViewById(R.id.crime_det)
 
-        longlat = view.findViewById(R.id.longlat) as TextView
+//        longlat = view.findViewById(R.id.longlat) as TextView
 
         photoView = view.findViewById(R.id.crime_photo) as ImageView
         photoViewSmall = view.findViewById(R.id.crime_photo_small) as ImageView
@@ -211,10 +211,10 @@ class CrimeFragment : Fragment(){
 
 
 
-        if(crime.send || crime.found){
-            resend_fragment_activity.visibility = View.GONE
-
-        }
+//        if(crime.send || crime.found){
+//            resend_fragment_activity.visibility = View.GONE
+//
+//        }
 
         resend_fragment_activity.setOnClickListener{
            val img_64 = PicturesUtils.getImg_64(crime)
@@ -281,18 +281,18 @@ class CrimeFragment : Fragment(){
             textFound.visibility = View.VISIBLE
         }
 
-        longlat.setOnClickListener {
-            if (crime.lat == 0.0){
-                Toast.makeText(requireContext(), "Нет геоданных", Toast.LENGTH_SHORT).show()
-            }
-            else {
-                val intent = Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("geo:0,0?q=${crime.lat},${crime.lon}")
-                )
-                startActivity(intent)
-            }
-        }
+//        longlat.setOnClickListener {
+//            if (crime.lat == 0.0){
+//                Toast.makeText(requireContext(), "Нет геоданных", Toast.LENGTH_SHORT).show()
+//            }
+//            else {
+//                val intent = Intent(
+//                    Intent.ACTION_VIEW,
+//                    Uri.parse("geo:0,0?q=${crime.lat},${crime.lon}")
+//                )
+//                startActivity(intent)
+//            }
+//        }
 
 //        val text = "Местоположение по <a href=\"https://yandex.ru/maps/?pt=${crime.lat},${crime.lon}&z=18&l=map\">ссылке</a>"
 //        longlat.text = Html.fromHtml(text);
