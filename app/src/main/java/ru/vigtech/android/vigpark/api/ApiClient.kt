@@ -2,6 +2,7 @@ package ru.vigtech.android.vigpark.api
 
 
 import android.util.Log
+import android.widget.TextView
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.*
@@ -11,7 +12,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import ru.vigtech.android.vigpark.Auth
+import ru.vigtech.android.vigpark.viewmodel.Auth
 import ru.vigtech.android.vigpark.MainActivity
 import ru.vigtech.android.vigpark.api.PostInterface
 import ru.vigtech.android.vigpark.api.PostPhoto
@@ -224,6 +225,7 @@ object ApiClient {
         call.enqueue(object : Callback<PostPhoto?> {
             override fun onResponse(call: Call<PostPhoto?>, response: Response<PostPhoto?>) {
                 try {
+
                     val statusCode = response.code()
                     if (statusCode == 200) {
                         val POST_PHOTO: PostPhoto? = response.body()

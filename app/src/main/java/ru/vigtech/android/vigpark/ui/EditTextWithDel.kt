@@ -58,6 +58,8 @@ class EditTextWithDel : androidx.appcompat.widget.AppCompatEditText {
         ) else setCompoundDrawablesWithIntrinsicBounds(null, null, imgInable, null)
     }
 
+
+
     // обрабатываем событие удаления
     @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {

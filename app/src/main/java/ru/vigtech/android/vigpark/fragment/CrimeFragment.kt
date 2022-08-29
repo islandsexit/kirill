@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.PointF
 import android.net.Uri
+import android.opengl.Visibility
 import android.os.Bundle
 import android.provider.Settings
 import android.text.Editable
@@ -50,6 +51,9 @@ class CrimeFragment : Fragment(){
     private lateinit var textFound: TextView
     private lateinit var textSend: TextView
     private lateinit var workDetails: TextView
+    private lateinit var workIcon: ImageView
+    private lateinit var workText: TextView
+
 //    private lateinit var longlat: TextView
 
     private lateinit var resend_fragment_activity: Button
@@ -94,6 +98,7 @@ class CrimeFragment : Fragment(){
         titleField = view.findViewById(R.id.crime_title) as EditTextWithDel
         workDetails = view.findViewById(R.id.crime_det)
 
+
 //        longlat = view.findViewById(R.id.longlat) as TextView
 
         photoView = view.findViewById(R.id.crime_photo) as ImageView
@@ -104,6 +109,8 @@ class CrimeFragment : Fragment(){
         iconSend = view.findViewById(R.id.crimefragment_icon_send)
         textFound = view.findViewById(R.id.crimefragment_text_found)
         textSend = view.findViewById(R.id.crimefragment_text_send)
+        workText = view.findViewById(R.id.crimefragment_text_worker)
+        workIcon = view.findViewById(R.id.crimefragment_icon_worker)
 
 
         titleField.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
@@ -248,6 +255,9 @@ class CrimeFragment : Fragment(){
     private fun updateUI() {
         if (crime.info.count() >= 1 && crime.info != "null"){
             workDetails.text = crime.info
+            workIcon.visibility = View.VISIBLE
+            workText.visibility = View.VISIBLE
+
         }
         titleField.setText(crime.title)
         if(File(crime.img_path).exists() && crime.img_path != ""){

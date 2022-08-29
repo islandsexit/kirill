@@ -1,4 +1,4 @@
-package ru.vigtech.android.vigpark
+package ru.vigtech.android.vigpark.viewmodel
 
 import android.content.Context
 import android.content.SharedPreferences

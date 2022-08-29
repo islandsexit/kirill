@@ -49,7 +49,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import ru.vigtech.android.vigpark.Auth
+import ru.vigtech.android.vigpark.viewmodel.Auth
 import ru.vigtech.android.vigpark.MainActivity
 import ru.vigtech.android.vigpark.R
 import ru.vigtech.android.vigpark.api.ApiClient
@@ -577,6 +577,7 @@ class CrimeListFragment : Fragment(),
         private val foundIcon: ImageView = itemView.findViewById(R.id.not_found)
         private val infoDot: ImageView = itemView.findViewById(R.id.crime_info_dot)
         private val workerIcon: ImageView = itemView.findViewById(R.id.worker_info_ic)
+        private val zone: TextView = itemView.findViewById(R.id.crime_zone)
 
 
         init {
@@ -592,6 +593,7 @@ class CrimeListFragment : Fragment(),
                 workerIcon.visibility = View.VISIBLE
             }
             titleTextView.text = this.crime.title
+            zone.text = crime.Zone.toString()
             dateTextView.text = SimpleDateFormat("dd-MM-yyyy HH:mm").format(this.crime.date)
 //            var path_to_image = "/storage/emulated/0/${crime.img_path}"
             if (File(crime.img_path).exists() && crime.img_path != "") {
