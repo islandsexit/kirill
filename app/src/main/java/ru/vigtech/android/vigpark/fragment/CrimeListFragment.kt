@@ -49,6 +49,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import ru.vigtech.android.vigpark.AliasZone
 import ru.vigtech.android.vigpark.viewmodel.Auth
 import ru.vigtech.android.vigpark.MainActivity
 import ru.vigtech.android.vigpark.R
@@ -83,6 +84,8 @@ class CrimeListFragment : Fragment(),
     private val listener: com.google.android.gms.location.LocationListener? = null
     private val UPDATE_INTERVAL = (2 * 1000).toLong()  /* 10 secs */
     private val FASTEST_INTERVAL: Long = 2000 /* 2 sec */
+
+
 
     //TOAST
     private lateinit var toastInflater: LayoutInflater

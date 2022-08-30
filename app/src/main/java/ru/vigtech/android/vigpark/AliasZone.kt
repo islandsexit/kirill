@@ -1,11 +1,12 @@
 package ru.vigtech.android.vigpark
 
+import android.app.AlertDialog
 import android.content.Context
 import androidx.preference.PreferenceManager
 
-class AliasZone {
-
-    var listOfAlias : Set<String> = setOf("1", "2", "3", "4", "5", "6")
+object AliasZone {
+    private val LISTOFALIAS = "listOfAlias"
+    private var listOfAlias : Set<String> = setOf("1", "2", "3", "4", "5", "6")
 
     fun getlistOfAlias(context: Context): Set<String>{
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -18,7 +19,9 @@ class AliasZone {
         editor.putStringSet(LISTOFALIAS, setOfAlias).apply()
     }
 
-    companion object{
-        val LISTOFALIAS = "listOfAlias"
-    }
+
+
+
+
+
 }
