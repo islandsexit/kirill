@@ -24,6 +24,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import ru.vigtech.android.vigpark.AliasZone
 import ru.vigtech.android.vigpark.database.Crime
 import ru.vigtech.android.vigpark.ui.EditTextWithDel
 import ru.vigtech.android.vigpark.tools.PicturesUtils
@@ -411,7 +412,10 @@ class CrimeFragment : Fragment(){
             return CrimeFragment().apply {
                 arguments = args
             }
+
+
         }
+
     }
 
 

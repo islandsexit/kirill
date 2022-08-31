@@ -49,9 +49,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
-import ru.vigtech.android.vigpark.AliasZone
-import ru.vigtech.android.vigpark.viewmodel.Auth
-import ru.vigtech.android.vigpark.MainActivity
 import ru.vigtech.android.vigpark.R
 import ru.vigtech.android.vigpark.api.ApiClient
 import ru.vigtech.android.vigpark.camera.CameraxHelper
@@ -61,6 +58,7 @@ import ru.vigtech.android.vigpark.swipe.SwipeToDeleteCallback
 import ru.vigtech.android.vigpark.swipe.SwipeToResendCallback
 import ru.vigtech.android.vigpark.tools.PicturesUtils
 import ru.vigtech.android.vigpark.tools.SizeHelper
+import ru.vigtech.android.vigpark.viewmodel.Auth
 import ru.vigtech.android.vigpark.viewmodel.CrimeListViewModel
 import java.io.*
 import java.text.SimpleDateFormat
@@ -84,6 +82,11 @@ class CrimeListFragment : Fragment(),
     private val listener: com.google.android.gms.location.LocationListener? = null
     private val UPDATE_INTERVAL = (2 * 1000).toLong()  /* 10 secs */
     private val FASTEST_INTERVAL: Long = 2000 /* 2 sec */
+
+    private val group1Id = 1
+
+    var flashid = 111
+    var zoneId = 112
 
 
 
@@ -113,6 +116,7 @@ class CrimeListFragment : Fragment(),
     var img64_full: String? = null
 
     private lateinit var menu: Menu
+    private lateinit var viewModel: Auth
 
 
     private lateinit var crimeRecyclerView: RecyclerView
@@ -399,12 +403,14 @@ class CrimeListFragment : Fragment(),
         cameraxHelper.zone = zone
 
 
-        val viewModel = ViewModelProvider(this).get(Auth::class.java)
+        viewModel = ViewModelProvider(this).get(Auth::class.java)
         viewModel.context = requireContext()
         viewModel.initViewModel()
         val authObserver = Observer<Int>{
             alertKey(it, viewModel)
         }
+
+
 
 
 
@@ -463,18 +469,69 @@ class CrimeListFragment : Fragment(),
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         this.menu = menu
-        inflater.inflate(R.menu.fragment_crime_list, menu)
-        selectMenu(zone, menu)
+
+        menu.add(group1Id, flashid, flashid, "Фонарик").setIcon(R.drawable.ic_flash_off).setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        val subZoneMenu = menu.addSubMenu(group1Id, zoneId, zoneId, "Выбор зоны").setIcon(R.drawable.ic_zone)
+        subZoneMenu.getItem().setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
 
 
+
+
+        viewModel.listOfAlias.value?.forEachIndexed{ index, item ->
+            subZoneMenu.add(2, index+1, index+1, item).setCheckable(true)
+        }
+
+        subZoneMenu.setGroupCheckable(2, true, true)
+        try {
+            selectMenu(zone-1, menu)
+        }catch (e:Exception){
+
+        }
+        ApiClient.checkZone()
+        val zoneObserver = Observer<Set<String>> {
+            rebuildMenu(menu)
+        }
+        viewModel.listOfAlias.observe(viewLifecycleOwner, zoneObserver)
+        try {
+            selectMenu(zone-1, menu)
+        }catch (e:Exception){
+
+        }
+
+    }
+
+    fun rebuildMenu(menu: Menu){
+
+
+        val subZoneMenu = menu.findItem(zoneId).subMenu
+        subZoneMenu.clear()
+        subZoneMenu.getItem().setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS)
+
+
+        viewModel.listOfAlias.value?.forEachIndexed{ index, item ->
+            if(item!=""){
+                subZoneMenu.add(2, index+1, index+1, item).setCheckable(true)
+            }
+        }
+        try {
+            subZoneMenu.getItem(getZoneFromShared()-1).isChecked = true
+        }catch(e:Exception){
+
+        }
+
+        subZoneMenu.setGroupCheckable(2, true, true)
+        adapter?.notifyDataSetChanged()
     }
 
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         Log.i("MENU", "${item}")
+
+
+
         return when (item.itemId) {
 
-            R.id.flash -> {
+            flashid -> {
                 if (cameraxHelper.cameraInfo?.torchState?.value == TorchState.ON) {
                     cameraxHelper.cameraControl?.enableTorch(false)
                     item.setIcon(R.drawable.ic_flash_off)
@@ -484,32 +541,14 @@ class CrimeListFragment : Fragment(),
                 }
                 true
             }
-            R.id.zone_1 -> {
-                zoneChange(1, menu, item)
-                true
-            }
-            R.id.zone_2 -> {
-                zoneChange(2, menu, item)
-                true
-            }
-            R.id.zone_3 -> {
-                zoneChange(3, menu, item)
-                true
-            }
-            R.id.zone_4 -> {
-                zoneChange(4, menu, item)
-                true
-            }
-            R.id.zone_5 -> {
-                zoneChange(5, menu, item)
-                true
-            }
-            R.id.zone_6 -> {
-                zoneChange(6, menu, item)
+            zoneId ->{
                 true
             }
 
-            else -> return super.onOptionsItemSelected(item)
+            else ->{
+                zoneChange(item.itemId, menu, item)
+                return super.onOptionsItemSelected(item)
+            }
         }
     }
 
@@ -592,12 +631,14 @@ class CrimeListFragment : Fragment(),
         @SuppressLint("SimpleDateFormat")
         fun bind(crime: Crime) {
             this.crime = crime
-            if(crime.isSolved){
-                workerIcon.visibility = View.VISIBLE
-            }
+            workerIcon.visibility = View.GONE
             titleTextView.text = this.crime.title
-            zone.text = crime.Zone.toString()
-            dateTextView.text = SimpleDateFormat("dd-MM-yyyy HH:mm").format(this.crime.date)
+            try {
+                zone.text = viewModel.listOfAlias.value!!.elementAt(crime.Zone-1)
+            }catch (e: Exception){
+                zone.text = "xxx"
+            }
+            dateTextView.text = SimpleDateFormat("dd.MM HH:mm").format(this.crime.date)
 //            var path_to_image = "/storage/emulated/0/${crime.img_path}"
             if (File(crime.img_path).exists() && crime.img_path != "") {
                 mybitmap = BitmapFactory.decodeFile(crime.img_path)
@@ -616,11 +657,12 @@ class CrimeListFragment : Fragment(),
                     foundIcon.visibility = View.VISIBLE
                 } else {
                     foundIcon.visibility = View.GONE
+                    if (crime.info.count() >= 2 && crime.info != "null") {
+                        infoDot.visibility = View.VISIBLE
+                    }
                 }
             }
-            if (crime.info.count() >= 1 && crime.info != "null") {
-                infoDot.visibility = View.VISIBLE
-            }
+
 
 
         }
@@ -766,6 +808,7 @@ class CrimeListFragment : Fragment(),
     }
 
     fun zoneChange(zon: Int, menu: Menu, item: MenuItem) {
+
         cameraxHelper.zone = zon
         zone = zon
         val preferences: SharedPreferences =
@@ -779,26 +822,9 @@ class CrimeListFragment : Fragment(),
     }
 
     private fun selectMenu(zon: Int, menu: Menu) {
-        val listOfMenu =
-            listOf(R.id.zone_1, R.id.zone_2, R.id.zone_3, R.id.zone_4, R.id.zone_5, R.id.zone_6)
-        val listOfIcon = listOf(
-            R.drawable.ic_first_zone,
-            R.drawable.ic_second_zone,
-            R.drawable.ic_third_zone,
-            R.drawable.ic_firth_zone,
-            R.drawable.ic_fifth_zone,
-            R.drawable.ic_sixth_zone
-        )
-        var count = 0
-        for (zone in listOfMenu) {
-            count++
-            if (count == zon) {
-                menu.findItem(R.id.zone_show).setIcon(listOfIcon[zon - 1])
-                menu.findItem(listOfMenu[zon - 1]).isChecked = true
-            } else {
-                menu.findItem(zone).isChecked = false
-            }
-        }
+        val submenuZone = menu.findItem(zoneId).subMenu
+        val item = submenuZone.findItem(zon)
+        item.isChecked = true
     }
 
     override fun onConnected(p0: Bundle?) {

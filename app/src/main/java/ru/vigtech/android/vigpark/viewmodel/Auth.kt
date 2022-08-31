@@ -10,10 +10,12 @@ import androidx.work.impl.utils.Preferences
 import ru.vigtech.android.vigpark.api.ApiClient
 import java.util.*
 
-const val UUIDKEY = "uuidKey"
-const val SECUREKEY = "secureKey"
-const val AUTHSUCCESS = "authSuccess"
+
 class Auth: ViewModel(){
+    private val UUIDKEY = "uuidKey"
+    private val SECUREKEY = "secureKey"
+    private val AUTHSUCCESS = "authSuccess"
+    private val LISTOFALIAS = "listOfAlias"
 
     lateinit var context: Context
     private lateinit var preferences: SharedPreferences
@@ -27,12 +29,23 @@ class Auth: ViewModel(){
             editor.putInt(AUTHSUCCESS, value.value!!).commit()
         }
 
-    private fun MutableLiveData<Int>.savePreferences(num:Int){
+    var listOfAlias: MutableLiveData<Set<String>> = MutableLiveData()
+        set(value){
+            field = value
+
+        }
+
+
+    fun MutableLiveData<Int>.savePreferences(num:Int){
 
         this.postValue(num)
         editor.putInt(AUTHSUCCESS, num).commit()
-     }
+    }
 
+    fun savePreferences(setOfString: Set<String>) {
+        listOfAlias.postValue(setOfString)
+        editor.putStringSet(LISTOFALIAS, setOfString).commit()
+    }
 
 
     var uuidKey: String = ""
@@ -62,9 +75,12 @@ class Auth: ViewModel(){
                     uuidKey = UUID.randomUUID().toString()
                     editor.putString(UUIDKEY, uuidKey).commit()
                 }
+
                 authSuccess = MutableLiveData(preferences.getInt(AUTHSUCCESS, 1))
+                listOfAlias = MutableLiveData(preferences.getStringSet(LISTOFALIAS, setOf("1", "2", "3")))
+
                 Log.i("AUTHC", "uuidKey: ${preferences.getString(UUIDKEY, "none")}, authSucess: ${preferences.getInt(
-                    AUTHSUCCESS, 4)}, secKey:${preferences.getString(SECUREKEY, "none")}")
+                    AUTHSUCCESS, 4)}, secKey:${preferences.getString(SECUREKEY, "none")}, listOfAlias: ${preferences.getStringSet(LISTOFALIAS, setOf("none"))}")
             }
 
             fun onCheckLicence(isSuccess: Boolean){

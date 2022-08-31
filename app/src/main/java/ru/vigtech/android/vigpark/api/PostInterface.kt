@@ -16,4 +16,8 @@ interface PostInterface {
     @POST("/onplateedited")
     fun  postPlateEdited( @Field("image") img64_full: String, @Field("plate") edited_plate_number: String, @Field("zone")zone:Int, @Field("lon")long: Double, @Field("lat")lat:Double, @Field("uuid")uuidKey: String, @Field("sec")secKey: String
     ): Call<PostPhoto>
+
+    @FormUrlEncoded
+    @POST("/zonecheking")
+    fun zoneCheck(@Field("uuid") uuidKey: String, @Field("sec") secKey: String):Call<PostPhoto>
 }
